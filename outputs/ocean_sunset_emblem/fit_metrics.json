@@ -1,0 +1,8 @@
+{
+  "svg": "outputs\\ocean_sunset_emblem\\ocean_sunset_emblem.svg",
+  "source": "outputs\\ocean_sunset_emblem\\source.png",
+  "overlay": "outputs\\ocean_sunset_emblem\\fit_iterations\\01_overlay.png",
+  "iou": 0.6339,
+  "src_only_px": 20464,
+  "render_only_px": 246939
+}

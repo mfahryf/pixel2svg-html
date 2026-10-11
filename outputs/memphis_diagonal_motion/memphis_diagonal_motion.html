@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memphis Diagonal Motion</title>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: #ffffff;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    #logo-root {
+      width: min(100vw, 1332px);
+    }
+
+    #logo-root svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <main id="logo-root" aria-label="Vectorized logo"></main>
+  <script>
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const LOGO = {"tag":"svg","attrs":{"viewBox":"0 0 1332 850","width":"1332","height":"850","preserveAspectRatio":"xMidYMid meet"},"children":[{"tag":"defs","attrs":{},"children":[{"tag":"pattern","attrs":{"id":"halftone_pattern","x":"0","y":"0","width":"24","height":"24","patternUnits":"userSpaceOnUse","patternTransform":"rotate(45)"},"children":[{"tag":"circle","attrs":{"cx":"12","cy":"12","r":"5","fill":"#ffffff","opacity":"0.85"},"children":[]}]},{"tag":"pattern","attrs":{"id":"stripe_pattern","x":"0","y":"0","width":"16","height":"16","patternUnits":"userSpaceOnUse","patternTransform":"rotate(45)"},"children":[{"tag":"line","attrs":{"x1":"0","y1":"0","x2":"0","y2":"16","stroke":"#ffffff","stroke-width":"4"},"children":[]}]}]},{"tag":"rect","attrs":{"id":"canvas_backdrop","width":"1332","height":"850","fill":"#77d7e5"},"children":[]},{"tag":"g","attrs":{"id":"halftone_matrices","opacity":"0.9"},"children":[{"tag":"ellipse","attrs":{"id":"dots_lower_left","cx":"340","cy":"620","rx":"280","ry":"200","fill":"url(#halftone_pattern)","transform":"rotate(-45 340 620)"},"children":[]},{"tag":"ellipse","attrs":{"id":"dots_upper_right","cx":"800","cy":"220","rx":"180","ry":"140","fill":"url(#halftone_pattern)","transform":"rotate(-45 800 220)"},"children":[]}]},{"tag":"g","attrs":{"id":"hatching_stripes"},"children":[{"tag":"rect","attrs":{"id":"stripes_center","x":"520","y":"240","width":"240","height":"150","rx":"30","fill":"url(#stripe_pattern)","transform":"rotate(-45 640 315)"},"children":[]}]},{"tag":"g","attrs":{"id":"memphis_kinetic_bars"},"children":[{"tag":"g","attrs":{"id":"bars_lime","fill":"#abd13a"},"children":[{"tag":"rect","attrs":{"id":"lime_bar_top","x":"180","y":"100","width":"180","height":"24","rx":"12","transform":"rotate(-45 270 112)"},"children":[]},{"tag":"rect","attrs":{"id":"lime_bar_center","x":"380","y":"560","width":"460","height":"64","rx":"32","transform":"rotate(-45 610 592)"},"children":[]},{"tag":"rect","attrs":{"id":"lime_bar_long","x":"720","y":"180","width":"600","height":"48","rx":"24","transform":"rotate(-45 1020 204)"},"children":[]},{"tag":"line","attrs":{"id":"lime_thin_line","x1":"900","y1":"840","x2":"1280","y2":"460","stroke":"#abd13a","stroke-width":"8","stroke-linecap":"round"},"children":[]}]},{"tag":"g","attrs":{"id":"bars_aubergine","fill":"#432c45"},"children":[{"tag":"rect","attrs":{"id":"purple_pill_main","x":"120","y":"440","width":"540","height":"110","rx":"55","transform":"rotate(-45 390 495)"},"children":[]},{"tag":"rect","attrs":{"id":"purple_pill_mid","x":"520","y":"380","width":"460","height":"96","rx":"48","transform":"rotate(-45 750 428)"},"children":[]},{"tag":"rect","attrs":{"id":"purple_pill_accent","x":"740","y":"520","width":"420","height":"52","rx":"26","transform":"rotate(-45 950 546)"},"children":[]},{"tag":"line","attrs":{"id":"purple_thin_line","x1":"140","y1":"260","x2":"480","y2":"-80","stroke":"#432c45","stroke-width":"7","stroke-linecap":"round"},"children":[]}]},{"tag":"g","attrs":{"id":"bars_pink","fill":"#f573a0"},"children":[{"tag":"rect","attrs":{"id":"pink_bar_long","x":"600","y":"40","width":"580","height":"42","rx":"21","transform":"rotate(-45 890 61)"},"children":[]},{"tag":"rect","attrs":{"id":"pink_bar_mid","x":"680","y":"440","width":"450","height":"88","rx":"44","transform":"rotate(-45 905 484)"},"children":[]},{"tag":"rect","attrs":{"id":"pink_bar_lower","x":"780","y":"660","width":"500","height":"38","rx":"19","transform":"rotate(-45 1030 679)"},"children":[]},{"tag":"rect","attrs":{"id":"pink_bar_left","x":"140","y":"620","width":"340","height":"32","rx":"16","transform":"rotate(-45 310 636)"},"children":[]},{"tag":"line","attrs":{"id":"pink_accent_line","x1":"150","y1":"300","x2":"350","y2":"100","stroke":"#f573a0","stroke-width":"12","stroke-linecap":"round"},"children":[]}]},{"tag":"g","attrs":{"id":"bars_slate","fill":"#8ea4b1"},"children":[{"tag":"rect","attrs":{"id":"slate_bar_top","x":"420","y":"120","width":"360","height":"54","rx":"27","transform":"rotate(-45 600 147)"},"children":[]},{"tag":"rect","attrs":{"id":"slate_bar_right","x":"880","y":"380","width":"300","height":"44","rx":"22","transform":"rotate(-45 1030 402)"},"children":[]},{"tag":"rect","attrs":{"id":"slate_bar_bottom","x":"1150","y":"520","width":"160","height":"24","rx":"12","transform":"rotate(-45 1230 532)"},"children":[]}]},{"tag":"g","attrs":{"id":"bars_white","fill":"#ffffff"},"children":[{"tag":"rect","attrs":{"id":"white_pill_top","x":"250","y":"70","width":"90","height":"46","rx":"23","transform":"rotate(-45 295 93)"},"children":[]},{"tag":"rect","attrs":{"id":"white_pill_inner_1","x":"300","y":"420","width":"70","height":"32","rx":"16","transform":"rotate(-45 335 436)"},"children":[]},{"tag":"rect","attrs":{"id":"white_pill_large","x":"380","y":"550","width":"580","height":"116","rx":"58","transform":"rotate(-45 670 608)"},"children":[]},{"tag":"rect","attrs":{"id":"white_pill_upper","x":"780","y":"270","width":"340","height":"66","rx":"33","transform":"rotate(-45 950 303)"},"children":[]},{"tag":"rect","attrs":{"id":"white_pill_accent","x":"980","y":"580","width":"220","height":"74","rx":"37","transform":"rotate(-45 1090 617)"},"children":[]}]}]}]};
+
+    function createSvgNode(node) {
+      const element = document.createElementNS(SVG_NS, node.tag);
+      for (const [name, value] of Object.entries(node.attrs || {})) {
+        element.setAttribute(name, value);
+      }
+      if (node.text) {
+        element.appendChild(document.createTextNode(node.text));
+      }
+      for (const child of node.children || []) {
+        element.appendChild(createSvgNode(child));
+      }
+      return element;
+    }
+
+    document.getElementById("logo-root").appendChild(createSvgNode(LOGO));
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ocean Sunset Emblem</title>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: #ffffff;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    #logo-root {
+      width: min(100vw, 1200px);
+    }
+
+    #logo-root svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <main id="logo-root" aria-label="Vectorized logo"></main>
+  <script>
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const LOGO = {"tag":"svg","attrs":{"viewBox":"0 0 1200 800","width":"1200","height":"800","preserveAspectRatio":"xMidYMid meet"},"children":[{"tag":"defs","attrs":{},"children":[{"tag":"linearGradient","attrs":{"id":"bg_grad","x1":"0%","y1":"0%","x2":"0%","y2":"100%"},"children":[{"tag":"stop","attrs":{"offset":"0%","stop-color":"#6bafe0"},"children":[]},{"tag":"stop","attrs":{"offset":"50%","stop-color":"#4a92ca"},"children":[]},{"tag":"stop","attrs":{"offset":"100%","stop-color":"#245a8a"},"children":[]}]},{"tag":"linearGradient","attrs":{"id":"sky_grad","x1":"0%","y1":"0%","x2":"0%","y2":"100%"},"children":[{"tag":"stop","attrs":{"offset":"0%","stop-color":"#67bcf4"},"children":[]},{"tag":"stop","attrs":{"offset":"45%","stop-color":"#93cff6"},"children":[]},{"tag":"stop","attrs":{"offset":"85%","stop-color":"#d8ebfa"},"children":[]},{"tag":"stop","attrs":{"offset":"100%","stop-color":"#eaf3fb"},"children":[]}]},{"tag":"radialGradient","attrs":{"id":"sun_grad","cx":"48%","cy":"42%","r":"55%"},"children":[{"tag":"stop","attrs":{"offset":"0%","stop-color":"#fbc343"},"children":[]},{"tag":"stop","attrs":{"offset":"55%","stop-color":"#f9a72b"},"children":[]},{"tag":"stop","attrs":{"offset":"100%","stop-color":"#e66f12"},"children":[]}]},{"tag":"linearGradient","attrs":{"id":"shadow_grad","x1":"0%","y1":"0%","x2":"100%","y2":"100%"},"children":[{"tag":"stop","attrs":{"offset":"0%","stop-color":"#123d66","stop-opacity":"0.45"},"children":[]},{"tag":"stop","attrs":{"offset":"65%","stop-color":"#1a4b7b","stop-opacity":"0.25"},"children":[]},{"tag":"stop","attrs":{"offset":"100%","stop-color":"#255b8e","stop-opacity":"0.0"},"children":[]}]},{"tag":"clipPath","attrs":{"id":"emblem_clip"},"children":[{"tag":"circle","attrs":{"cx":"600","cy":"400","r":"208"},"children":[]}]}]},{"tag":"rect","attrs":{"id":"canvas_backdrop","width":"1200","height":"800","fill":"url(#bg_grad)"},"children":[]},{"tag":"g","attrs":{"id":"emblem_shadow"},"children":[{"tag":"path","attrs":{"d":"M 453 253 L 120 780 L 450 800 L 747 547 Z","fill":"url(#shadow_grad)"},"children":[]},{"tag":"circle","attrs":{"cx":"600","cy":"400","r":"208","fill":"#123d66","opacity":"0.25","filter":"blur(14px)"},"children":[]}]},{"tag":"g","attrs":{"id":"emblem_art","clip-path":"url(#emblem_clip)"},"children":[{"tag":"rect","attrs":{"id":"sky_backdrop","x":"380","y":"180","width":"440","height":"440","fill":"url(#sky_grad)"},"children":[]},{"tag":"circle","attrs":{"id":"sun_disk","cx":"608","cy":"340","r":"73","fill":"url(#sun_grad)"},"children":[]},{"tag":"path","attrs":{"id":"wave_rear","d":"M 380 372 C 430 358 480 398 535 390 C 585 382 615 352 660 352 C 710 352 745 395 820 380 L 820 620 L 380 620 Z","fill":"#3897fa"},"children":[]},{"tag":"path","attrs":{"id":"wave_mid_high","d":"M 380 412 C 435 440 480 405 525 410 C 570 415 615 448 670 445 C 720 442 765 412 820 422 L 820 620 L 380 620 Z","fill":"#1b6eeb"},"children":[]},{"tag":"path","attrs":{"id":"wave_mid","d":"M 380 460 C 440 445 490 485 550 480 C 605 475 645 435 700 440 C 745 445 780 482 820 472 L 820 620 L 380 620 Z","fill":"#083ec0"},"children":[]},{"tag":"path","attrs":{"id":"wave_mid_low","d":"M 380 500 C 435 525 475 495 530 492 C 580 488 625 530 680 528 C 735 525 775 495 820 505 L 820 620 L 380 620 Z","fill":"#2984f4"},"children":[]},{"tag":"path","attrs":{"id":"wave_foreground","d":"M 380 550 C 430 535 480 568 535 565 C 590 562 630 538 680 540 C 730 542 770 565 820 558 L 820 620 L 380 620 Z","fill":"#0b379b"},"children":[]}]}]};
+
+    function createSvgNode(node) {
+      const element = document.createElementNS(SVG_NS, node.tag);
+      for (const [name, value] of Object.entries(node.attrs || {})) {
+        element.setAttribute(name, value);
+      }
+      if (node.text) {
+        element.appendChild(document.createTextNode(node.text));
+      }
+      for (const child of node.children || []) {
+        element.appendChild(createSvgNode(child));
+      }
+      return element;
+    }
+
+    document.getElementById("logo-root").appendChild(createSvgNode(LOGO));
+  </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6bafe0"/>
+      <stop offset="50%" stop-color="#4a92ca"/>
+      <stop offset="100%" stop-color="#245a8a"/>
+    </linearGradient>
+
+    <!-- Sky Gradient inside circle -->
+    <linearGradient id="sky_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#67bcf4"/>
+      <stop offset="45%" stop-color="#93cff6"/>
+      <stop offset="85%" stop-color="#d8ebfa"/>
+      <stop offset="100%" stop-color="#eaf3fb"/>
+    </linearGradient>
+
+    <!-- Sun Radial Gradient -->
+    <radialGradient id="sun_grad" cx="48%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#fbc343"/>
+      <stop offset="55%" stop-color="#f9a72b"/>
+      <stop offset="100%" stop-color="#e66f12"/>
+    </radialGradient>
+
+    <!-- Diagonal Soft Shadow -->
+    <linearGradient id="shadow_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#123d66" stop-opacity="0.45"/>
+      <stop offset="65%" stop-color="#1a4b7b" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#255b8e" stop-opacity="0.0"/>
+    </linearGradient>
+
+    <!-- Emblem Circular Clip Path -->
+    <clipPath id="emblem_clip">
+      <circle cx="600" cy="400" r="208"/>
+    </clipPath>
+  </defs>
+
+  <!-- 1. Canvas Backdrop -->
+  <rect id="canvas_backdrop" width="1200" height="800" fill="url(#bg_grad)"/>
+
+  <!-- 2. Emblem Diagonal Long Shadow -->
+  <g id="emblem_shadow">
+    <!-- Diagonal projection path from circle towards bottom-left -->
+    <path d="M 453 253 L 120 780 L 450 800 L 747 547 Z" fill="url(#shadow_grad)"/>
+    <circle cx="600" cy="400" r="208" fill="#123d66" opacity="0.25" filter="blur(14px)"/>
+  </g>
+
+  <!-- 3. Emblem Inner Art (Clipped Circle) -->
+  <g id="emblem_art" clip-path="url(#emblem_clip)">
+    <!-- Sky Backdrop -->
+    <rect id="sky_backdrop" x="380" y="180" width="440" height="440" fill="url(#sky_grad)"/>
+
+    <!-- Sun Disk -->
+    <circle id="sun_disk" cx="608" cy="340" r="73" fill="url(#sun_grad)"/>
+
+    <!-- Wave 1: Rear Crest Wave (#3491f8) -->
+    <path id="wave_rear" d="M 380 372 C 430 358 480 398 535 390 C 585 382 615 352 660 352 C 710 352 745 395 820 380 L 820 620 L 380 620 Z" fill="#3897fa"/>
+
+    <!-- Wave 2: Mid-High Wave (#1e73f0) -->
+    <path id="wave_mid_high" d="M 380 412 C 435 440 480 405 525 410 C 570 415 615 448 670 445 C 720 442 765 412 820 422 L 820 620 L 380 620 Z" fill="#1b6eeb"/>
+
+    <!-- Wave 3: Deep Mid Wave (#083fc2) -->
+    <path id="wave_mid" d="M 380 460 C 440 445 490 485 550 480 C 605 475 645 435 700 440 C 745 445 780 482 820 472 L 820 620 L 380 620 Z" fill="#083ec0"/>
+
+    <!-- Wave 4: Forward Ripple Wave (#2986f7) -->
+    <path id="wave_mid_low" d="M 380 500 C 435 525 475 495 530 492 C 580 488 625 530 680 528 C 735 525 775 495 820 505 L 820 620 L 380 620 Z" fill="#2984f4"/>
+
+    <!-- Wave 5: Deep Foreground Wave (#0c3899) -->
+    <path id="wave_foreground" d="M 380 550 C 430 535 480 568 535 565 C 590 562 630 538 680 540 C 730 542 770 565 820 558 L 820 620 L 380 620 Z" fill="#0b379b"/>
+  </g>
+</svg>

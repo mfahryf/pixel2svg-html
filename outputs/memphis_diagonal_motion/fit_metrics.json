@@ -1,0 +1,8 @@
+{
+  "svg": "outputs\\memphis_diagonal_motion\\memphis_diagonal_motion.svg",
+  "source": "outputs\\memphis_diagonal_motion\\source.png",
+  "overlay": "outputs\\memphis_diagonal_motion\\fit_iterations\\01_overlay.png",
+  "iou": 0.3709,
+  "src_only_px": 330720,
+  "render_only_px": 105474
+}

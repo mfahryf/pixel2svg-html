@@ -1,0 +1,8 @@
+{
+  "svg": "outputs\\cosmic_wavy_ribbons\\cosmic_wavy_ribbons.svg",
+  "source": "outputs\\cosmic_wavy_ribbons\\source.png",
+  "overlay": "outputs\\cosmic_wavy_ribbons\\fit_iterations\\01_overlay.png",
+  "iou": 0.8001,
+  "src_only_px": 367540,
+  "render_only_px": 852
+}

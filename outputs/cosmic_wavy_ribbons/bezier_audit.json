@@ -1,0 +1,24 @@
+{
+  "segment_count": 9,
+  "cubic_segments": 8,
+  "line_segments": 1,
+  "closed": true,
+  "budget": null,
+  "over_budget": false,
+  "median_segment_length": 518.692,
+  "short_segment_warnings": [],
+  "join_angle_threshold_degrees": 8.0,
+  "join_angle_warnings": [
+    {
+      "join_after_segment": 4,
+      "angle_degrees": 46.975
+    },
+    {
+      "join_after_segment": 5,
+      "angle_degrees": 123.69
+    }
+  ],
+  "input_svg": "outputs\\cosmic_wavy_ribbons\\cosmic_wavy_ribbons.svg",
+  "selected_path_index": 4,
+  "path_count": 7
+}

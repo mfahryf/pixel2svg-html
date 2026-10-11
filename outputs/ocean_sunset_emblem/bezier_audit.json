@@ -1,0 +1,24 @@
+{
+  "segment_count": 5,
+  "cubic_segments": 3,
+  "line_segments": 2,
+  "closed": true,
+  "budget": null,
+  "over_budget": false,
+  "median_segment_length": 164.789,
+  "short_segment_warnings": [],
+  "join_angle_threshold_degrees": 8.0,
+  "join_angle_warnings": [
+    {
+      "join_after_segment": 3,
+      "angle_degrees": 101.31
+    },
+    {
+      "join_after_segment": 4,
+      "angle_degrees": 90.0
+    }
+  ],
+  "input_svg": "outputs\\ocean_sunset_emblem\\ocean_sunset_emblem.svg",
+  "selected_path_index": 1,
+  "path_count": 6
+}

@@ -1,0 +1,8 @@
+{
+  "svg": "outputs\\pastel_scallop_waves\\pastel_scallop_waves.svg",
+  "source": "outputs\\pastel_scallop_waves\\source.png",
+  "overlay": "outputs\\pastel_scallop_waves\\fit_iterations\\01_overlay.png",
+  "iou": 0.9666,
+  "src_only_px": 969,
+  "render_only_px": 68348
+}

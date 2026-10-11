@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 960" width="1920" height="960" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- 4-Point Diamond Sparkle Star Symbol -->
+    <g id="star_template">
+      <path d="M 0 -36 C 1 -10 10 -1 36 0 C 10 1 1 10 0 36 C -1 10 -10 1 -36 0 C -10 -1 -1 -10 0 -36 Z" fill="#fff8f0"/>
+    </g>
+
+    <!-- Small Sparkle Star Symbol -->
+    <g id="small_star_template">
+      <path d="M 0 -18 C 1 -5 5 -1 18 0 C 5 1 1 5 0 18 C -1 5 -5 1 -18 0 C -5 -1 -1 -5 0 -18 Z" fill="#fff8f0"/>
+    </g>
+  </defs>
+
+  <!-- 1. Deep Midnight Space Background -->
+  <rect id="space_backdrop" width="1920" height="960" fill="#021d34"/>
+
+  <!-- 2. Celestial Diamond Stars in Deep Space -->
+  <g id="celestial_stars">
+    <use href="#star_template" x="110" y="140" transform="scale(1.1)"/>
+    <use href="#star_template" x="1775" y="310" transform="scale(1.2)"/>
+    <use href="#star_template" x="1320" y="285" transform="scale(0.8)"/>
+    <use href="#star_template" x="1570" y="550" transform="scale(0.9)"/>
+    <use href="#star_template" x="540" y="860" transform="scale(0.85)"/>
+    <use href="#star_template" x="1710" y="90" transform="scale(0.7)"/>
+
+    <use href="#small_star_template" x="205" y="265"/>
+    <use href="#small_star_template" x="325" y="60"/>
+    <use href="#small_star_template" x="90" y="830"/>
+    <use href="#small_star_template" x="635" y="905"/>
+    <use href="#small_star_template" x="1120" y="930"/>
+    <use href="#small_star_template" x="1170" y="945"/>
+  </g>
+
+  <!-- 3. Celestial Planets Behind Ribbons -->
+  <g id="planets_background">
+    <!-- Small Orange Moon on Left -->
+    <g id="planet_orange_left">
+      <circle cx="125" cy="385" r="38" fill="#ea7a38"/>
+      <circle cx="125" cy="385" r="44" stroke="#ffffff" stroke-width="1.5" fill="none" opacity="0.6"/>
+    </g>
+
+    <!-- Teal Planet Near Upper Left -->
+    <g id="planet_teal_top">
+      <circle cx="570" cy="185" r="62" fill="#18a69b"/>
+      <circle cx="570" cy="185" r="68" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.8"/>
+    </g>
+  </g>
+
+  <!-- 4. Undulating Flowing Cosmic Ribbons -->
+  <g id="wavy_ribbons">
+    <!-- Ribbon 1: Peach Cream Upper Stream (#f4c3a8) -->
+    <path id="ribbon_peach" d="M -10 600 C 120 540 260 210 440 140 C 580 80 660 0 740 -10 L 1930 -10 L 1930 200 C 1720 120 1560 0 1340 -10 C 1120 -10 920 120 720 80 C 520 40 380 200 240 380 C 120 520 40 640 -10 640 Z" fill="#f4c3a8"/>
+
+    <!-- Ribbon 2: Warm Orange River (#eb8447) -->
+    <path id="ribbon_orange" d="M -10 630 C 120 560 250 360 420 220 C 580 80 720 20 880 40 C 1080 60 1260 -10 1480 30 C 1680 70 1820 190 1930 220 L 1930 420 C 1750 360 1620 180 1420 180 C 1220 180 1060 260 880 220 C 700 180 540 220 380 380 C 240 520 120 660 -10 670 Z" fill="#eb8447"/>
+
+    <!-- Ribbon 3: Vibrant Rose / Magenta Core (#e91e63) -->
+    <path id="ribbon_magenta" d="M -10 665 C 100 620 220 480 360 380 C 520 260 680 260 840 340 C 1040 440 1200 520 1400 480 C 1620 440 1780 280 1930 420 L 1930 680 C 1780 580 1640 440 1420 520 C 1200 600 1020 520 840 460 C 660 400 520 420 360 560 C 220 680 100 700 -10 705 Z" fill="#e92066"/>
+
+    <!-- Ribbon 4: Turquoise Teal River (#12a297) -->
+    <path id="ribbon_teal" d="M -10 700 C 100 690 200 640 320 540 C 480 420 640 440 800 560 C 980 700 1160 800 1380 720 C 1580 640 1740 580 1930 680 L 1930 840 C 1760 780 1620 720 1400 760 C 1180 800 980 740 800 640 C 620 540 460 560 300 720 C 180 820 80 740 -10 730 Z" fill="#14a398"/>
+
+    <!-- Ribbon 5: Mint Sage Green Base (#99ccb2) -->
+    <path id="ribbon_mint" d="M -10 725 C 90 735 220 760 340 700 C 480 620 640 640 780 740 C 960 860 1140 880 1340 820 C 1540 760 1720 820 1930 840 L 1930 970 L -10 970 Z" fill="#9ccbb3"/>
+  </g>
+
+  <!-- 5. Foreground Celestial Bodies (Overlapping Ribbons) -->
+  <g id="planets_foreground">
+    <!-- Lower Left Magenta Planet with White Ring -->
+    <g id="planet_magenta_lower">
+      <circle cx="490" cy="780" r="88" fill="#e92666"/>
+      <circle cx="490" cy="780" r="95" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.8"/>
+    </g>
+
+    <!-- Large Celestial Navy Orb on Right with Rings -->
+    <g id="planet_giant_navy_right">
+      <circle cx="1440" cy="420" r="160" fill="#041629"/>
+      <circle cx="1440" cy="420" r="176" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.75"/>
+      <!-- Overlapping Mint Moon -->
+      <circle cx="1550" cy="225" r="96" fill="#95ccb8"/>
+    </g>
+  </g>
+</svg>
