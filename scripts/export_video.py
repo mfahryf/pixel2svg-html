@@ -69,7 +69,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--motion-style", type=str, default=None, help="Motion style name to activate (HTML only)")
     parser.add_argument("--palette", type=str, default=None, help="Color palette theme name to activate (HTML only)")
     parser.add_argument("--codec", choices=["h264", "prores", "auto"], default="auto", help="Video codec (h264 MP4 or prores MOV)")
-    parser.add_argument("--crf", type=int, default=16, help="H.264 CRF quality level (lower is better, 16=visually lossless)")
+    parser.add_argument("--crf", type=int, default=10, help="H.264 CRF quality level (lower is better, 10=pristine master, 14=high quality)")
     parser.add_argument("--preset", choices=["adobe-stock", "standard"], default="adobe-stock", help="Encoding configuration preset")
     parser.add_argument("-i", "--interactive", action="store_true", help="Launch interactive CLI wizard")
     return parser.parse_args()
@@ -298,11 +298,13 @@ async def render_file_to_video(
             "-c:v", "libx264",
             "-preset", "slow",
             "-crf", str(crf),
+            "-tune", "animation",
             "-pix_fmt", "yuv420p",
+            "-color_range", "pc",
             "-color_primaries", "bt709",
             "-color_trc", "bt709",
             "-colorspace", "bt709",
-            "-bsf:v", "h264_metadata=colour_primaries=1:transfer_characteristics=1:matrix_coefficients=1",
+            "-bsf:v", "h264_metadata=colour_primaries=1:transfer_characteristics=1:matrix_coefficients=1:video_full_range_flag=1",
             "-movflags", "+faststart",
             str(out_path),
         ])
@@ -447,7 +449,14 @@ async def main_async() -> None:
     t_batch_start = time.time()
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch()
+        browser = await p.chromium.launch(
+            headless=True,
+            args=[
+                "--enable-gpu-rasterization",
+                "--enable-zero-copy",
+                "--force-color-profile=srgb",
+            ],
+        )
 
         for idx, input_file in enumerate(target_files, 1):
             print(f"\n[{idx}/{len(target_files)}] Memproses: {input_file.name}")

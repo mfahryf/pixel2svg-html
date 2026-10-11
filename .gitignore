@@ -34,6 +34,9 @@ outputs/**/fit_iterations/
 test_*.png
 render_test_*.png
 extracted_frame_*.png
+scratch_*.py
+*.gif
+*snapshot*
 outputs/**/test_*.png
 outputs/**/render_test_*.png
 outputs/**/extracted_frame_*.png
