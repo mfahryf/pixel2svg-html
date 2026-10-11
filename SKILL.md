@@ -142,6 +142,33 @@ IoU must not hide bad vector craft. A smooth source must ship as smooth vector g
        `python3 scripts/animate_svg.py <subject>.svg --category custom --motion-styles outputs/<subject>/fit_work/<subject>_motions.json --palettes outputs/<subject>/fit_work/<subject>_palettes.json --out-html <subject>_motion.html --out-svg <subject>_motion.svg`
    - Build progress strip: `outputs/<subject>/overlay_progress_strip.png`.
 
+
+---
+
+## Autonomous Batch Protocol (Mandatory Multi-Subject Execution)
+
+When processing multiple images or an entire folder in batch mode, the agent MUST NEVER skip the AI motion & palette design step:
+
+For **EVERY SINGLE image** in the batch:
+1. **Semantic Vector Fitting**: Construct smooth Bezier geometry with semantic IDs (#sun, #wave, #body, #wheel, etc.) and verify with 
+ender_overlay.py.
+2. **AI Kinematics Authoring (<subject>_motions.json)**:
+   - The AI MUST analyze the subject visually and craft **3 bespoke motion concepts** using organic CSS keyframe animations mapped to the layer IDs.
+   - Concept 1: Primary organic/physical movement (wave drift, wheel roll, leg hop, stem sway).
+   - Concept 2: Environmental/celestial transit (solar dusk, tidal surge, wind gust, orbital drift).
+   - Concept 3: Dynamic shimmer / particle radiance / pulse.
+3. **AI Color Directing (<subject>_palettes.json)**:
+   - The AI MUST craft **4 handcrafted color schemes** mapped to the layer IDs:
+     - Theme 1: Original / Natural palette.
+     - Theme 2: Sunset / Golden hour / Warm glow.
+     - Theme 3: Midnight / Deep night / Bioluminescence.
+     - Theme 4: Cyberpunk / Neon / Modern artistic.
+4. **Motion Studio Synthesis**:
+   - Compile <subject>_motion.html and standalone <subject>_motion.svg with the authored motions and palettes.
+   - **STRICT GATE**: The agent is FORBIDDEN from calling nimate_svg.py with generic fallback flags (--category background) without first generating <subject>_motions.json and <subject>_palettes.json!
+5. **Video Export Policy**:
+   - If user requested video: run export_video.py (CFR 60fps, CRF 10).
+   - If user requested NO video: skip video generation; deliverables are <subject>.svg, <subject>.html, <subject>_motion.html, and <subject>_motion.svg.
 ---
 
 ## Bundled Scripts
