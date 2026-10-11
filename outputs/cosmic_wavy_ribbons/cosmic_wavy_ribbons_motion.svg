@@ -1,15 +1,35 @@
 <svg viewBox="0 0 1920 960" width="1920" height="960" preserveAspectRatio="xMidYMid meet">
   <style>
 /* Hardware-Accelerated Contextual Motion */
-
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+/* Cosmic Ribbon Flow &amp; Twinkling Stars */
+@keyframes ribbon-flow-1 {
+  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }
+  50% { transform: translate(18px, -12px) scaleY(1.04); }
 }
-svg &gt; g, svg &gt; circle, svg &gt; path:not([id*="bg"]) {
-  transform-box: fill-box;
+@keyframes ribbon-flow-2 {
+  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }
+  50% { transform: translate(-16px, 14px) scaleY(1.03); }
+}
+@keyframes star-twinkle {
+  0%, 100% { transform: scale(0.75) rotate(0deg); opacity: 0.55; }
+  50% { transform: scale(1.35) rotate(45deg); opacity: 1.0; filter: drop-shadow(0 0 12px rgba(255, 248, 240, 0.95)); }
+}
+@keyframes planet-orbital-float {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(8px, -16px); }
+}
+#ribbon_peach, #ribbon_magenta, #ribbon_mint {
+  animation: ribbon-flow-1 8.0s ease-in-out infinite;
+}
+#ribbon_orange, #ribbon_teal {
+  animation: ribbon-flow-2 7.0s ease-in-out infinite;
+}
+#celestial_stars {
   transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+  animation: star-twinkle 4.0s ease-in-out infinite;
+}
+#planet_orange_left, #planet_teal_top, #planet_magenta_lower, #planet_giant_navy_right {
+  animation: planet-orbital-float 6.5s ease-in-out infinite;
 }
 </style><defs>
     

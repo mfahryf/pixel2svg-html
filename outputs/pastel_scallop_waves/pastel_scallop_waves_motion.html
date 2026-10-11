@@ -105,15 +105,20 @@
 
   <!-- Injected Contextual Keyframes (Dynamic Motion Style Switcher) -->
   <style id="motion-css-tag">
-    
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+    /* Alternating Tidal Ripple Cascade */
+@keyframes scallop-drift-right {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(24px, -4px); }
 }
-svg > g, svg > circle, svg > path:not([id*="bg"]) {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+@keyframes scallop-drift-left {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-24px, 4px); }
+}
+#row_1_mint, #row_3_yellow, #row_5_cyan, #row_7_lime {
+  animation: scallop-drift-right 7.0s ease-in-out infinite;
+}
+#row_2_lavender, #row_4_pink, #row_6_peach, #row_8_blush {
+  animation: scallop-drift-left 7.0s ease-in-out infinite;
 }
   </style>
 
@@ -667,9 +672,19 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
           </div>
 
           <div class="hud-group-right">
-            
+            <div class="hud-motion-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Motion Style">🎬</span>
+              <select id="motion-select" class="hud-select" title="Switch Motion Style">
+                <option value="Alternating Tidal Ripple Cascade">Alternating Tidal Ripple Cascade</option>\n<option value="Staggered Depth Wave Pulse">Staggered Depth Wave Pulse</option>\n<option value="Chromatic Breathing &amp; Floating Scale">Chromatic Breathing &amp; Floating Scale</option>\n
+              </select>
+            </div>
 
-            
+            <div class="hud-palette-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Color Theme">🎨</span>
+              <select id="palette-select" class="hud-select" title="Switch Color Theme">
+                <option value="Pastel Rainbow (Original)">Pastel Rainbow (Original)</option>\n<option value="Sunset Sherbet">Sunset Sherbet</option>\n<option value="Oceanic Gradient">Oceanic Gradient</option>\n<option value="Cyber Vaporwave">Cyber Vaporwave</option>\n
+              </select>
+            </div>
           </div>
         </div>
 
@@ -1004,7 +1019,7 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
     });
 
     // Palette / Theme Switcher
-    const PALETTES = {};
+    const PALETTES = {"Pastel Rainbow (Original)": {"background_base": "#d6f2f8", "row_1_mint_body": "#c0f2d1", "row_2_lavender_body": "#d8bcdc", "row_3_yellow_body": "#efe5a0", "row_4_pink_body": "#e49bb7", "row_5_cyan_body": "#a8f9ec", "row_6_peach_body": "#e5ba81", "row_7_lime_body": "#b6eb9f", "row_8_blush_body": "#f9c4c6"}, "Sunset Sherbet": {"background_base": "#fef3c7", "row_1_mint_body": "#fed7aa", "row_2_lavender_body": "#fdba74", "row_3_yellow_body": "#fb923c", "row_4_pink_body": "#f87171", "row_5_cyan_body": "#fb7185", "row_6_peach_body": "#fda4af", "row_7_lime_body": "#fecdd3", "row_8_blush_body": "#ffe4e6"}, "Oceanic Gradient": {"background_base": "#082f49", "row_1_mint_body": "#e0f2fe", "row_2_lavender_body": "#bae6fd", "row_3_yellow_body": "#7dd3fc", "row_4_pink_body": "#38bdf8", "row_5_cyan_body": "#0ea5e9", "row_6_peach_body": "#0284c7", "row_7_lime_body": "#0369a1", "row_8_blush_body": "#075985"}, "Cyber Vaporwave": {"background_base": "#18181b", "row_1_mint_body": "#22d3ee", "row_2_lavender_body": "#818cf8", "row_3_yellow_body": "#c084fc", "row_4_pink_body": "#e879f9", "row_5_cyan_body": "#f43f5e", "row_6_peach_body": "#fb7185", "row_7_lime_body": "#a855f7", "row_8_blush_body": "#6366f1"}};
     let currentThemeName = Object.keys(PALETTES)[0] || "";
 
     function applyTheme(themeName) {
@@ -1085,7 +1100,7 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
     });
 
     // Motion Style Switcher
-    const MOTION_STYLES = {"Primary Motion": "\n@keyframes mbg-ambient-wave {\n  0%, 100% { transform: scale(0.85); opacity: 0.85; }\n  50% { transform: scale(1.15); opacity: 1.0; }\n}\nsvg > g, svg > circle, svg > path:not([id*=\"bg\"]) {\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: mbg-ambient-wave 5.00s ease-in-out infinite;\n}"};
+    const MOTION_STYLES = {"Alternating Tidal Ripple Cascade": "/* Alternating Tidal Ripple Cascade */\n@keyframes scallop-drift-right {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(24px, -4px); }\n}\n@keyframes scallop-drift-left {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(-24px, 4px); }\n}\n#row_1_mint, #row_3_yellow, #row_5_cyan, #row_7_lime {\n  animation: scallop-drift-right 7.0s ease-in-out infinite;\n}\n#row_2_lavender, #row_4_pink, #row_6_peach, #row_8_blush {\n  animation: scallop-drift-left 7.0s ease-in-out infinite;\n}", "Staggered Depth Wave Pulse": "/* Staggered Depth Wave Pulse */\n@keyframes wave-depth-pulse {\n  0%, 100% { transform: translateY(0px) scale(1.0); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05)); }\n  50% { transform: translateY(-14px) scale(1.02); filter: drop-shadow(0 8px 16px rgba(0,0,0,0.18)); }\n}\n#row_1_mint { transform-origin: center; animation: wave-depth-pulse 5.0s ease-in-out infinite 0.0s; }\n#row_2_lavender { transform-origin: center; animation: wave-depth-pulse 5.0s ease-in-out infinite 0.4s; }\n#row_3_yellow { transform-origin: center; animation: wave-depth-pulse 5.0s ease-in-out infinite 0.8s; }\n#row_4_pink { transform-origin: center; animation: wave-depth-pulse 5.0s ease-in-out infinite 1.2s; }\n#row_5_cyan { transform-origin: center; animation: wave-depth-pulse 5.0s ease-in-out infinite 1.6s; }\n#row_6_peach { transform-origin: center; animation: wave-depth-pulse 5.0s ease-in-out infinite 2.0s; }\n#row_7_lime { transform-origin: center; animation: wave-depth-pulse 5.0s ease-in-out infinite 2.4s; }\n#row_8_blush { transform-origin: center; animation: wave-depth-pulse 5.0s ease-in-out infinite 2.8s; }", "Chromatic Breathing & Floating Scale": "/* Chromatic Breathing & Floating Scale */\n@keyframes scallop-breathe {\n  0%, 100% { transform: scale(1.0); filter: brightness(1.0); }\n  50% { transform: scale(1.03); filter: brightness(1.08) saturate(1.15); }\n}\n#row_1_mint, #row_2_lavender { transform-origin: center top; animation: scallop-breathe 8.0s ease-in-out infinite 0.0s; }\n#row_3_yellow, #row_4_pink { transform-origin: center; animation: scallop-breathe 8.0s ease-in-out infinite 0.8s; }\n#row_5_cyan, #row_6_peach { transform-origin: center; animation: scallop-breathe 8.0s ease-in-out infinite 1.6s; }\n#row_7_lime, #row_8_blush { transform-origin: center bottom; animation: scallop-breathe 8.0s ease-in-out infinite 2.4s; }"};
     let currentMotionStyleName = Object.keys(MOTION_STYLES)[0] || "";
 
     function applyMotionStyle(styleName) {
@@ -1134,15 +1149,20 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
       // WYSIWYG Speed Scaling: scale all animation durations if speed != 1.0
       let activeCss = (MOTION_STYLES && currentMotionStyleName && MOTION_STYLES[currentMotionStyleName]) 
         ? MOTION_STYLES[currentMotionStyleName] 
-        : `
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+        : `/* Alternating Tidal Ripple Cascade */
+@keyframes scallop-drift-right {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(24px, -4px); }
 }
-svg > g, svg > circle, svg > path:not([id*="bg"]) {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+@keyframes scallop-drift-left {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-24px, 4px); }
+}
+#row_1_mint, #row_3_yellow, #row_5_cyan, #row_7_lime {
+  animation: scallop-drift-right 7.0s ease-in-out infinite;
+}
+#row_2_lavender, #row_4_pink, #row_6_peach, #row_8_blush {
+  animation: scallop-drift-left 7.0s ease-in-out infinite;
 }`;
 
       if (currentSpeed && currentSpeed !== 1.0) {

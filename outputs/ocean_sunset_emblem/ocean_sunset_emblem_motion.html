@@ -105,15 +105,50 @@
 
   <!-- Injected Contextual Keyframes (Dynamic Motion Style Switcher) -->
   <style id="motion-css-tag">
-    
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+    /* Harmonic Wave Swell & Solar Pulse */
+@keyframes sun-pulse {
+  0%, 100% { transform: translateY(0px) scale(1.0); filter: drop-shadow(0 0 10px rgba(251, 195, 67, 0.45)); }
+  50% { transform: translateY(-8px) scale(1.05); filter: drop-shadow(0 0 24px rgba(251, 195, 67, 0.85)); }
 }
-svg > g, svg > circle, svg > path:not([id*="bg"]) {
+@keyframes wave-rear-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-14px, -6px); }
+}
+@keyframes wave-midhigh-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(16px, 5px); }
+}
+@keyframes wave-mid-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-18px, -5px); }
+}
+@keyframes wave-midlow-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(15px, 6px); }
+}
+@keyframes wave-fore-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-22px, -7px); }
+}
+#sun_disk {
   transform-box: fill-box;
   transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+  animation: sun-pulse 8.0s ease-in-out infinite;
+}
+#wave_rear {
+  animation: wave-rear-drift 6.0s ease-in-out infinite;
+}
+#wave_mid_high {
+  animation: wave-midhigh-drift 7.0s ease-in-out infinite;
+}
+#wave_mid {
+  animation: wave-mid-drift 8.0s ease-in-out infinite;
+}
+#wave_mid_low {
+  animation: wave-midlow-drift 6.5s ease-in-out infinite;
+}
+#wave_foreground {
+  animation: wave-fore-drift 7.5s ease-in-out infinite;
 }
   </style>
 
@@ -686,7 +721,7 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
           <div class="hud-group-left">
             <div class="hud-meta-inline">
               <span class="subject-title">Ocean Sunset Emblem</span>
-              <span class="badge">BACKGROUND</span>
+              <span class="badge">CREATURE</span>
               <span id="fps-badge">60 FPS</span>
             </div>
           </div>
@@ -701,9 +736,19 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
           </div>
 
           <div class="hud-group-right">
-            
+            <div class="hud-motion-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Motion Style">🎬</span>
+              <select id="motion-select" class="hud-select" title="Switch Motion Style">
+                <option value="Harmonic Wave Swell &amp; Solar Pulse">Harmonic Wave Swell &amp; Solar Pulse</option>\n<option value="Solar Transit &amp; Deep Ocean Tide">Solar Transit &amp; Deep Ocean Tide</option>\n<option value="Tidal Parallax &amp; Shimmering Waters">Tidal Parallax &amp; Shimmering Waters</option>\n
+              </select>
+            </div>
 
-            
+            <div class="hud-palette-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Color Theme">🎨</span>
+              <select id="palette-select" class="hud-select" title="Switch Color Theme">
+                <option value="Pacific Noon (Original)">Pacific Noon (Original)</option>\n<option value="Golden Sunset &amp; Coral Sea">Golden Sunset &amp; Coral Sea</option>\n<option value="Bioluminescent Midnight">Bioluminescent Midnight</option>\n<option value="Emerald Lagoon">Emerald Lagoon</option>\n
+              </select>
+            </div>
           </div>
         </div>
 
@@ -1038,7 +1083,7 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
     });
 
     // Palette / Theme Switcher
-    const PALETTES = {};
+    const PALETTES = {"Pacific Noon (Original)": {"canvas_backdrop": "#4a90e2", "sky_backdrop": "#67bcf4", "sun_disk": "#fbc343", "wave_rear": "#3897fa", "wave_mid_high": "#1b6eeb", "wave_mid": "#083ec0", "wave_mid_low": "#2984f4", "wave_foreground": "#0b379b"}, "Golden Sunset & Coral Sea": {"canvas_backdrop": "#1e1b4b", "sky_backdrop": "#fdba74", "sun_disk": "#f43f5e", "wave_rear": "#ea580c", "wave_mid_high": "#c2410c", "wave_mid": "#9a3412", "wave_mid_low": "#f97316", "wave_foreground": "#7c2d12"}, "Bioluminescent Midnight": {"canvas_backdrop": "#030712", "sky_backdrop": "#0f172a", "sun_disk": "#38bdf8", "wave_rear": "#0284c7", "wave_mid_high": "#0369a1", "wave_mid": "#075985", "wave_mid_low": "#0ea5e9", "wave_foreground": "#0c4a6e"}, "Emerald Lagoon": {"canvas_backdrop": "#064e3b", "sky_backdrop": "#6ee7b7", "sun_disk": "#fde047", "wave_rear": "#10b981", "wave_mid_high": "#059669", "wave_mid": "#047857", "wave_mid_low": "#34d399", "wave_foreground": "#065f46"}};
     let currentThemeName = Object.keys(PALETTES)[0] || "";
 
     function applyTheme(themeName) {
@@ -1119,7 +1164,7 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
     });
 
     // Motion Style Switcher
-    const MOTION_STYLES = {"Primary Motion": "\n@keyframes mbg-ambient-wave {\n  0%, 100% { transform: scale(0.85); opacity: 0.85; }\n  50% { transform: scale(1.15); opacity: 1.0; }\n}\nsvg > g, svg > circle, svg > path:not([id*=\"bg\"]) {\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: mbg-ambient-wave 5.00s ease-in-out infinite;\n}"};
+    const MOTION_STYLES = {"Harmonic Wave Swell & Solar Pulse": "/* Harmonic Wave Swell & Solar Pulse */\n@keyframes sun-pulse {\n  0%, 100% { transform: translateY(0px) scale(1.0); filter: drop-shadow(0 0 10px rgba(251, 195, 67, 0.45)); }\n  50% { transform: translateY(-8px) scale(1.05); filter: drop-shadow(0 0 24px rgba(251, 195, 67, 0.85)); }\n}\n@keyframes wave-rear-drift {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(-14px, -6px); }\n}\n@keyframes wave-midhigh-drift {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(16px, 5px); }\n}\n@keyframes wave-mid-drift {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(-18px, -5px); }\n}\n@keyframes wave-midlow-drift {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(15px, 6px); }\n}\n@keyframes wave-fore-drift {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(-22px, -7px); }\n}\n#sun_disk {\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: sun-pulse 8.0s ease-in-out infinite;\n}\n#wave_rear {\n  animation: wave-rear-drift 6.0s ease-in-out infinite;\n}\n#wave_mid_high {\n  animation: wave-midhigh-drift 7.0s ease-in-out infinite;\n}\n#wave_mid {\n  animation: wave-mid-drift 8.0s ease-in-out infinite;\n}\n#wave_mid_low {\n  animation: wave-midlow-drift 6.5s ease-in-out infinite;\n}\n#wave_foreground {\n  animation: wave-fore-drift 7.5s ease-in-out infinite;\n}", "Solar Transit & Deep Ocean Tide": "/* Solar Transit & Deep Ocean Tide */\n@keyframes sun-ocean-transit {\n  0% { transform: translate(0px, 0px) scale(1.0); opacity: 1.0; }\n  40% { transform: translate(-15px, 20px) scale(1.06); opacity: 0.95; }\n  65% { transform: translate(-30px, 48px) scale(1.12); opacity: 0.4; }\n  75% { transform: translate(-35px, 65px) scale(0.9); opacity: 0.0; }\n  85% { transform: translate(15px, 25px) scale(0.95); opacity: 0.6; }\n  100% { transform: translate(0px, 0px) scale(1.0); opacity: 1.0; }\n}\n@keyframes tide-surge-1 {\n  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }\n  50% { transform: translate(-10px, 12px) scaleY(1.08); }\n}\n@keyframes tide-surge-2 {\n  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }\n  50% { transform: translate(12px, -8px) scaleY(1.06); }\n}\n@keyframes sky-ocean-dusk {\n  0%, 100% { filter: brightness(1.0) hue-rotate(0deg); }\n  55% { filter: brightness(0.82) hue-rotate(-25deg); }\n  85% { filter: brightness(0.92) hue-rotate(-5deg); }\n}\n#sun_disk {\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: sun-ocean-transit 10.0s ease-in-out infinite;\n}\n#wave_rear, #wave_mid {\n  animation: tide-surge-1 8.0s ease-in-out infinite;\n}\n#wave_mid_high, #wave_mid_low, #wave_foreground {\n  animation: tide-surge-2 7.0s ease-in-out infinite;\n}\n#sky_backdrop {\n  animation: sky-ocean-dusk 10.0s ease-in-out infinite;\n}", "Tidal Parallax & Shimmering Waters": "/* Tidal Parallax & Shimmering Waters */\n@keyframes parallax-fast {\n  0%, 100% { transform: translateX(0px); }\n  50% { transform: translateX(25px); }\n}\n@keyframes parallax-slow {\n  0%, 100% { transform: translateX(0px); }\n  50% { transform: translateX(-20px); }\n}\n@keyframes ocean-shimmer {\n  0%, 100% { filter: brightness(1.0); }\n  50% { filter: brightness(1.15) drop-shadow(0 0 12px rgba(56, 151, 250, 0.6)); }\n}\n#wave_rear {\n  animation: parallax-slow 9.0s ease-in-out infinite;\n}\n#wave_mid_high {\n  animation: parallax-fast 6.0s ease-in-out infinite;\n}\n#wave_mid {\n  animation: parallax-slow 8.0s ease-in-out infinite;\n}\n#wave_mid_low {\n  animation: parallax-fast 5.5s ease-in-out infinite;\n}\n#wave_foreground {\n  animation: parallax-slow 7.0s ease-in-out infinite;\n}\n#sun_disk {\n  animation: ocean-shimmer 6.0s ease-in-out infinite;\n}"};
     let currentMotionStyleName = Object.keys(MOTION_STYLES)[0] || "";
 
     function applyMotionStyle(styleName) {
@@ -1168,15 +1213,50 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
       // WYSIWYG Speed Scaling: scale all animation durations if speed != 1.0
       let activeCss = (MOTION_STYLES && currentMotionStyleName && MOTION_STYLES[currentMotionStyleName]) 
         ? MOTION_STYLES[currentMotionStyleName] 
-        : `
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+        : `/* Harmonic Wave Swell & Solar Pulse */
+@keyframes sun-pulse {
+  0%, 100% { transform: translateY(0px) scale(1.0); filter: drop-shadow(0 0 10px rgba(251, 195, 67, 0.45)); }
+  50% { transform: translateY(-8px) scale(1.05); filter: drop-shadow(0 0 24px rgba(251, 195, 67, 0.85)); }
 }
-svg > g, svg > circle, svg > path:not([id*="bg"]) {
+@keyframes wave-rear-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-14px, -6px); }
+}
+@keyframes wave-midhigh-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(16px, 5px); }
+}
+@keyframes wave-mid-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-18px, -5px); }
+}
+@keyframes wave-midlow-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(15px, 6px); }
+}
+@keyframes wave-fore-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-22px, -7px); }
+}
+#sun_disk {
   transform-box: fill-box;
   transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+  animation: sun-pulse 8.0s ease-in-out infinite;
+}
+#wave_rear {
+  animation: wave-rear-drift 6.0s ease-in-out infinite;
+}
+#wave_mid_high {
+  animation: wave-midhigh-drift 7.0s ease-in-out infinite;
+}
+#wave_mid {
+  animation: wave-mid-drift 8.0s ease-in-out infinite;
+}
+#wave_mid_low {
+  animation: wave-midlow-drift 6.5s ease-in-out infinite;
+}
+#wave_foreground {
+  animation: wave-fore-drift 7.5s ease-in-out infinite;
 }`;
 
       if (currentSpeed && currentSpeed !== 1.0) {

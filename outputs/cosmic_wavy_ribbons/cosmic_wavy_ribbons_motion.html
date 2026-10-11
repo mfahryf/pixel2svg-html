@@ -105,15 +105,35 @@
 
   <!-- Injected Contextual Keyframes (Dynamic Motion Style Switcher) -->
   <style id="motion-css-tag">
-    
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+    /* Cosmic Ribbon Flow & Twinkling Stars */
+@keyframes ribbon-flow-1 {
+  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }
+  50% { transform: translate(18px, -12px) scaleY(1.04); }
 }
-svg > g, svg > circle, svg > path:not([id*="bg"]) {
-  transform-box: fill-box;
+@keyframes ribbon-flow-2 {
+  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }
+  50% { transform: translate(-16px, 14px) scaleY(1.03); }
+}
+@keyframes star-twinkle {
+  0%, 100% { transform: scale(0.75) rotate(0deg); opacity: 0.55; }
+  50% { transform: scale(1.35) rotate(45deg); opacity: 1.0; filter: drop-shadow(0 0 12px rgba(255, 248, 240, 0.95)); }
+}
+@keyframes planet-orbital-float {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(8px, -16px); }
+}
+#ribbon_peach, #ribbon_magenta, #ribbon_mint {
+  animation: ribbon-flow-1 8.0s ease-in-out infinite;
+}
+#ribbon_orange, #ribbon_teal {
+  animation: ribbon-flow-2 7.0s ease-in-out infinite;
+}
+#celestial_stars {
   transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+  animation: star-twinkle 4.0s ease-in-out infinite;
+}
+#planet_orange_left, #planet_teal_top, #planet_magenta_lower, #planet_giant_navy_right {
+  animation: planet-orbital-float 6.5s ease-in-out infinite;
 }
   </style>
 
@@ -713,9 +733,19 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
           </div>
 
           <div class="hud-group-right">
-            
+            <div class="hud-motion-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Motion Style">🎬</span>
+              <select id="motion-select" class="hud-select" title="Switch Motion Style">
+                <option value="Cosmic Ribbon Flow &amp; Twinkling Stars">Cosmic Ribbon Flow &amp; Twinkling Stars</option>\n<option value="Gravitational Wave &amp; Planetary Orbit">Gravitational Wave &amp; Planetary Orbit</option>\n<option value="Aurora Shimmer &amp; Celestial Aura">Aurora Shimmer &amp; Celestial Aura</option>\n
+              </select>
+            </div>
 
-            
+            <div class="hud-palette-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Color Theme">🎨</span>
+              <select id="palette-select" class="hud-select" title="Switch Color Theme">
+                <option value="Cosmic Retro (Original)">Cosmic Retro (Original)</option>\n<option value="Deep Galaxy Neon">Deep Galaxy Neon</option>\n<option value="Solar Flare Sunset">Solar Flare Sunset</option>\n<option value="Ethereal Aurora">Ethereal Aurora</option>\n
+              </select>
+            </div>
           </div>
         </div>
 
@@ -1050,7 +1080,7 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
     });
 
     // Palette / Theme Switcher
-    const PALETTES = {};
+    const PALETTES = {"Cosmic Retro (Original)": {"space_backdrop": "#021d34", "ribbon_peach": "#f4c3a8", "ribbon_orange": "#eb8447", "ribbon_magenta": "#e92066", "ribbon_teal": "#14a398", "ribbon_mint": "#9ccbb3"}, "Deep Galaxy Neon": {"space_backdrop": "#050510", "ribbon_peach": "#e0aaff", "ribbon_orange": "#c77dff", "ribbon_magenta": "#9d4edd", "ribbon_teal": "#00b4d8", "ribbon_mint": "#90e0ef"}, "Solar Flare Sunset": {"space_backdrop": "#1a0500", "ribbon_peach": "#ffedd5", "ribbon_orange": "#fb923c", "ribbon_magenta": "#ea580c", "ribbon_teal": "#c2410c", "ribbon_mint": "#7c2d12"}, "Ethereal Aurora": {"space_backdrop": "#022c22", "ribbon_peach": "#ccfbf1", "ribbon_orange": "#5eead4", "ribbon_magenta": "#2dd4bf", "ribbon_teal": "#0d9488", "ribbon_mint": "#115e59"}};
     let currentThemeName = Object.keys(PALETTES)[0] || "";
 
     function applyTheme(themeName) {
@@ -1131,7 +1161,7 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
     });
 
     // Motion Style Switcher
-    const MOTION_STYLES = {"Primary Motion": "\n@keyframes mbg-ambient-wave {\n  0%, 100% { transform: scale(0.85); opacity: 0.85; }\n  50% { transform: scale(1.15); opacity: 1.0; }\n}\nsvg > g, svg > circle, svg > path:not([id*=\"bg\"]) {\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: mbg-ambient-wave 5.00s ease-in-out infinite;\n}"};
+    const MOTION_STYLES = {"Cosmic Ribbon Flow & Twinkling Stars": "/* Cosmic Ribbon Flow & Twinkling Stars */\n@keyframes ribbon-flow-1 {\n  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }\n  50% { transform: translate(18px, -12px) scaleY(1.04); }\n}\n@keyframes ribbon-flow-2 {\n  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }\n  50% { transform: translate(-16px, 14px) scaleY(1.03); }\n}\n@keyframes star-twinkle {\n  0%, 100% { transform: scale(0.75) rotate(0deg); opacity: 0.55; }\n  50% { transform: scale(1.35) rotate(45deg); opacity: 1.0; filter: drop-shadow(0 0 12px rgba(255, 248, 240, 0.95)); }\n}\n@keyframes planet-orbital-float {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(8px, -16px); }\n}\n#ribbon_peach, #ribbon_magenta, #ribbon_mint {\n  animation: ribbon-flow-1 8.0s ease-in-out infinite;\n}\n#ribbon_orange, #ribbon_teal {\n  animation: ribbon-flow-2 7.0s ease-in-out infinite;\n}\n#celestial_stars {\n  transform-origin: center;\n  animation: star-twinkle 4.0s ease-in-out infinite;\n}\n#planet_orange_left, #planet_teal_top, #planet_magenta_lower, #planet_giant_navy_right {\n  animation: planet-orbital-float 6.5s ease-in-out infinite;\n}", "Gravitational Wave & Planetary Orbit": "/* Gravitational Wave & Planetary Orbit */\n@keyframes gravity-wave {\n  0%, 100% { transform: scaleY(1.0) translateY(0px); }\n  50% { transform: scaleY(1.08) translateY(-18px); }\n}\n@keyframes deep-space-pulse {\n  0%, 100% { filter: brightness(1.0); }\n  50% { filter: brightness(1.2) drop-shadow(0 0 20px rgba(18, 162, 151, 0.5)); }\n}\n#wavy_ribbons {\n  transform-origin: center;\n  animation: gravity-wave 9.0s ease-in-out infinite;\n}\n#planets_foreground, #planets_background {\n  animation: deep-space-pulse 6.0s ease-in-out infinite;\n}", "Aurora Shimmer & Celestial Aura": "/* Aurora Shimmer & Celestial Aura */\n@keyframes aurora-shimmer {\n  0%, 100% { filter: hue-rotate(0deg) saturate(1.0); }\n  50% { filter: hue-rotate(25deg) saturate(1.3) brightness(1.1); }\n}\n@keyframes stars-pulse-fast {\n  0%, 100% { opacity: 0.4; transform: scale(0.8); }\n  50% { opacity: 1.0; transform: scale(1.4); }\n}\n#wavy_ribbons {\n  animation: aurora-shimmer 10.0s ease-in-out infinite;\n}\n#celestial_stars {\n  transform-origin: center;\n  animation: stars-pulse-fast 2.5s ease-in-out infinite;\n}"};
     let currentMotionStyleName = Object.keys(MOTION_STYLES)[0] || "";
 
     function applyMotionStyle(styleName) {
@@ -1180,15 +1210,35 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
       // WYSIWYG Speed Scaling: scale all animation durations if speed != 1.0
       let activeCss = (MOTION_STYLES && currentMotionStyleName && MOTION_STYLES[currentMotionStyleName]) 
         ? MOTION_STYLES[currentMotionStyleName] 
-        : `
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+        : `/* Cosmic Ribbon Flow & Twinkling Stars */
+@keyframes ribbon-flow-1 {
+  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }
+  50% { transform: translate(18px, -12px) scaleY(1.04); }
 }
-svg > g, svg > circle, svg > path:not([id*="bg"]) {
-  transform-box: fill-box;
+@keyframes ribbon-flow-2 {
+  0%, 100% { transform: translate(0px, 0px) scaleY(1.0); }
+  50% { transform: translate(-16px, 14px) scaleY(1.03); }
+}
+@keyframes star-twinkle {
+  0%, 100% { transform: scale(0.75) rotate(0deg); opacity: 0.55; }
+  50% { transform: scale(1.35) rotate(45deg); opacity: 1.0; filter: drop-shadow(0 0 12px rgba(255, 248, 240, 0.95)); }
+}
+@keyframes planet-orbital-float {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(8px, -16px); }
+}
+#ribbon_peach, #ribbon_magenta, #ribbon_mint {
+  animation: ribbon-flow-1 8.0s ease-in-out infinite;
+}
+#ribbon_orange, #ribbon_teal {
+  animation: ribbon-flow-2 7.0s ease-in-out infinite;
+}
+#celestial_stars {
   transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+  animation: star-twinkle 4.0s ease-in-out infinite;
+}
+#planet_orange_left, #planet_teal_top, #planet_magenta_lower, #planet_giant_navy_right {
+  animation: planet-orbital-float 6.5s ease-in-out infinite;
 }`;
 
       if (currentSpeed && currentSpeed !== 1.0) {

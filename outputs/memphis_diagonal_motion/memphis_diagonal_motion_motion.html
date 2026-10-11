@@ -105,15 +105,37 @@
 
   <!-- Injected Contextual Keyframes (Dynamic Motion Style Switcher) -->
   <style id="motion-css-tag">
-    
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+    /* Kinetic 45° Diagonal Stream */
+@keyframes slide-diagonal-up {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(32px, -32px); }
 }
-svg > g, svg > circle, svg > path:not([id*="bg"]) {
-  transform-box: fill-box;
+@keyframes slide-diagonal-down {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-28px, 28px); }
+}
+@keyframes dots-fade {
+  0%, 100% { opacity: 0.85; transform: scale(1.0); }
+  50% { opacity: 0.45; transform: scale(0.96); }
+}
+#bars_lime {
+  animation: slide-diagonal-up 5.0s ease-in-out infinite;
+}
+#bars_pink {
+  animation: slide-diagonal-down 6.0s ease-in-out infinite;
+}
+#bars_aubergine {
+  animation: slide-diagonal-up 7.5s ease-in-out infinite;
+}
+#bars_white {
+  animation: slide-diagonal-down 5.5s ease-in-out infinite;
+}
+#bars_slate {
+  animation: slide-diagonal-up 6.5s ease-in-out infinite;
+}
+#halftone_matrices {
   transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+  animation: dots-fade 4.0s ease-in-out infinite;
 }
   </style>
 
@@ -701,9 +723,19 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
           </div>
 
           <div class="hud-group-right">
-            
+            <div class="hud-motion-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Motion Style">🎬</span>
+              <select id="motion-select" class="hud-select" title="Switch Motion Style">
+                <option value="Kinetic 45° Diagonal Stream">Kinetic 45° Diagonal Stream</option>\n<option value="Staggered Energy Pulse &amp; Halftone Shimmer">Staggered Energy Pulse &amp; Halftone Shimmer</option>\n<option value="Chromatic Frequency Wave">Chromatic Frequency Wave</option>\n
+              </select>
+            </div>
 
-            
+            <div class="hud-palette-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Color Theme">🎨</span>
+              <select id="palette-select" class="hud-select" title="Switch Color Theme">
+                <option value="Memphis Pop (Original)">Memphis Pop (Original)</option>\n<option value="Cyberpunk Neo-Tokyo">Cyberpunk Neo-Tokyo</option>\n<option value="Retro 80s Sunset">Retro 80s Sunset</option>\n<option value="Bauhaus Minimalist">Bauhaus Minimalist</option>\n
+              </select>
+            </div>
           </div>
         </div>
 
@@ -1038,7 +1070,7 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
     });
 
     // Palette / Theme Switcher
-    const PALETTES = {};
+    const PALETTES = {"Memphis Pop (Original)": {"canvas_backdrop": "#77d7e5", "lime_bar_top": "#abd13a", "lime_bar_center": "#abd13a", "lime_bar_long": "#abd13a", "lime_thin_line": "#abd13a", "purple_pill_main": "#432c45", "purple_pill_mid": "#432c45", "purple_pill_accent": "#432c45", "purple_thin_line": "#432c45", "pink_bar_long": "#f573a0", "pink_bar_mid": "#f573a0", "pink_bar_lower": "#f573a0", "pink_bar_left": "#f573a0", "pink_accent_line": "#f573a0", "slate_bar_top": "#8ea4b1", "slate_bar_right": "#8ea4b1", "slate_bar_bottom": "#8ea4b1", "white_pill_top": "#ffffff", "white_pill_inner_1": "#ffffff", "white_pill_large": "#ffffff", "white_pill_upper": "#ffffff", "white_pill_accent": "#ffffff"}, "Cyberpunk Neo-Tokyo": {"canvas_backdrop": "#090d16", "lime_bar_top": "#00f5d4", "lime_bar_center": "#00f5d4", "lime_bar_long": "#00f5d4", "lime_thin_line": "#00f5d4", "purple_pill_main": "#7b2cbf", "purple_pill_mid": "#7b2cbf", "purple_pill_accent": "#7b2cbf", "purple_thin_line": "#7b2cbf", "pink_bar_long": "#ff007f", "pink_bar_mid": "#ff007f", "pink_bar_lower": "#ff007f", "pink_bar_left": "#ff007f", "pink_accent_line": "#ff007f", "slate_bar_top": "#3a0ca3", "slate_bar_right": "#3a0ca3", "slate_bar_bottom": "#3a0ca3", "white_pill_top": "#f8f9fa", "white_pill_inner_1": "#f8f9fa", "white_pill_large": "#f8f9fa", "white_pill_upper": "#f8f9fa", "white_pill_accent": "#f8f9fa"}, "Retro 80s Sunset": {"canvas_backdrop": "#2b0938", "lime_bar_top": "#ffd166", "lime_bar_center": "#ffd166", "lime_bar_long": "#ffd166", "lime_thin_line": "#ffd166", "purple_pill_main": "#073b4c", "purple_pill_mid": "#073b4c", "purple_pill_accent": "#073b4c", "purple_thin_line": "#073b4c", "pink_bar_long": "#ef476f", "pink_bar_mid": "#ef476f", "pink_bar_lower": "#ef476f", "pink_bar_left": "#ef476f", "pink_accent_line": "#ef476f", "slate_bar_top": "#118ab2", "slate_bar_right": "#118ab2", "slate_bar_bottom": "#118ab2", "white_pill_top": "#fff3b0", "white_pill_inner_1": "#fff3b0", "white_pill_large": "#fff3b0", "white_pill_upper": "#fff3b0", "white_pill_accent": "#fff3b0"}, "Bauhaus Minimalist": {"canvas_backdrop": "#e5e5e5", "lime_bar_top": "#e63946", "lime_bar_center": "#e63946", "lime_bar_long": "#e63946", "lime_thin_line": "#e63946", "purple_pill_main": "#1d3557", "purple_pill_mid": "#1d3557", "purple_pill_accent": "#1d3557", "purple_thin_line": "#1d3557", "pink_bar_long": "#f4a261", "pink_bar_mid": "#f4a261", "pink_bar_lower": "#f4a261", "pink_bar_left": "#f4a261", "pink_accent_line": "#f4a261", "slate_bar_top": "#457b9d", "slate_bar_right": "#457b9d", "slate_bar_bottom": "#457b9d", "white_pill_top": "#ffffff", "white_pill_inner_1": "#ffffff", "white_pill_large": "#ffffff", "white_pill_upper": "#ffffff", "white_pill_accent": "#ffffff"}};
     let currentThemeName = Object.keys(PALETTES)[0] || "";
 
     function applyTheme(themeName) {
@@ -1119,7 +1151,7 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
     });
 
     // Motion Style Switcher
-    const MOTION_STYLES = {"Primary Motion": "\n@keyframes mbg-ambient-wave {\n  0%, 100% { transform: scale(0.85); opacity: 0.85; }\n  50% { transform: scale(1.15); opacity: 1.0; }\n}\nsvg > g, svg > circle, svg > path:not([id*=\"bg\"]) {\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: mbg-ambient-wave 5.00s ease-in-out infinite;\n}"};
+    const MOTION_STYLES = {"Kinetic 45° Diagonal Stream": "/* Kinetic 45° Diagonal Stream */\n@keyframes slide-diagonal-up {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(32px, -32px); }\n}\n@keyframes slide-diagonal-down {\n  0%, 100% { transform: translate(0px, 0px); }\n  50% { transform: translate(-28px, 28px); }\n}\n@keyframes dots-fade {\n  0%, 100% { opacity: 0.85; transform: scale(1.0); }\n  50% { opacity: 0.45; transform: scale(0.96); }\n}\n#bars_lime {\n  animation: slide-diagonal-up 5.0s ease-in-out infinite;\n}\n#bars_pink {\n  animation: slide-diagonal-down 6.0s ease-in-out infinite;\n}\n#bars_aubergine {\n  animation: slide-diagonal-up 7.5s ease-in-out infinite;\n}\n#bars_white {\n  animation: slide-diagonal-down 5.5s ease-in-out infinite;\n}\n#bars_slate {\n  animation: slide-diagonal-up 6.5s ease-in-out infinite;\n}\n#halftone_matrices {\n  transform-origin: center;\n  animation: dots-fade 4.0s ease-in-out infinite;\n}", "Staggered Energy Pulse & Halftone Shimmer": "/* Staggered Energy Pulse & Halftone Shimmer */\n@keyframes bar-pulse {\n  0%, 100% { transform: scale(1.0); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }\n  50% { transform: scale(1.05); filter: drop-shadow(0 6px 14px rgba(67, 44, 69, 0.45)); }\n}\n@keyframes stripe-shimmer {\n  0%, 100% { filter: brightness(1.0); }\n  50% { filter: brightness(1.3) drop-shadow(0 0 10px rgba(255,255,255,0.7)); }\n}\n#bars_aubergine { transform-origin: center; animation: bar-pulse 4.5s ease-in-out infinite 0.0s; }\n#bars_lime { transform-origin: center; animation: bar-pulse 4.5s ease-in-out infinite 0.5s; }\n#bars_pink { transform-origin: center; animation: bar-pulse 4.5s ease-in-out infinite 1.0s; }\n#bars_white { transform-origin: center; animation: bar-pulse 4.5s ease-in-out infinite 1.5s; }\n#hatching_stripes { animation: stripe-shimmer 3.0s ease-in-out infinite; }", "Chromatic Frequency Wave": "/* Chromatic Frequency Wave */\n@keyframes wave-frequency {\n  0%, 100% { transform: translateY(0px) rotate(0deg); }\n  25% { transform: translate(12px, -12px) rotate(0.8deg); }\n  75% { transform: translate(-12px, 12px) rotate(-0.8deg); }\n}\n#memphis_kinetic_bars {\n  transform-origin: center;\n  animation: wave-frequency 6.0s ease-in-out infinite;\n}\n#halftone_matrices {\n  animation: wave-frequency 8.0s ease-in-out infinite reverse;\n}"};
     let currentMotionStyleName = Object.keys(MOTION_STYLES)[0] || "";
 
     function applyMotionStyle(styleName) {
@@ -1168,15 +1200,37 @@ svg > g, svg > circle, svg > path:not([id*="bg"]) {
       // WYSIWYG Speed Scaling: scale all animation durations if speed != 1.0
       let activeCss = (MOTION_STYLES && currentMotionStyleName && MOTION_STYLES[currentMotionStyleName]) 
         ? MOTION_STYLES[currentMotionStyleName] 
-        : `
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+        : `/* Kinetic 45° Diagonal Stream */
+@keyframes slide-diagonal-up {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(32px, -32px); }
 }
-svg > g, svg > circle, svg > path:not([id*="bg"]) {
-  transform-box: fill-box;
+@keyframes slide-diagonal-down {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-28px, 28px); }
+}
+@keyframes dots-fade {
+  0%, 100% { opacity: 0.85; transform: scale(1.0); }
+  50% { opacity: 0.45; transform: scale(0.96); }
+}
+#bars_lime {
+  animation: slide-diagonal-up 5.0s ease-in-out infinite;
+}
+#bars_pink {
+  animation: slide-diagonal-down 6.0s ease-in-out infinite;
+}
+#bars_aubergine {
+  animation: slide-diagonal-up 7.5s ease-in-out infinite;
+}
+#bars_white {
+  animation: slide-diagonal-down 5.5s ease-in-out infinite;
+}
+#bars_slate {
+  animation: slide-diagonal-up 6.5s ease-in-out infinite;
+}
+#halftone_matrices {
   transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+  animation: dots-fade 4.0s ease-in-out infinite;
 }`;
 
       if (currentSpeed && currentSpeed !== 1.0) {

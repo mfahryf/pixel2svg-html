@@ -1,15 +1,50 @@
 <svg viewBox="0 0 1200 800" width="1200" height="800" preserveAspectRatio="xMidYMid meet">
   <style>
 /* Hardware-Accelerated Contextual Motion */
-
-@keyframes mbg-ambient-wave {
-  0%, 100% { transform: scale(0.85); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1.0; }
+/* Harmonic Wave Swell &amp; Solar Pulse */
+@keyframes sun-pulse {
+  0%, 100% { transform: translateY(0px) scale(1.0); filter: drop-shadow(0 0 10px rgba(251, 195, 67, 0.45)); }
+  50% { transform: translateY(-8px) scale(1.05); filter: drop-shadow(0 0 24px rgba(251, 195, 67, 0.85)); }
 }
-svg &gt; g, svg &gt; circle, svg &gt; path:not([id*="bg"]) {
+@keyframes wave-rear-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-14px, -6px); }
+}
+@keyframes wave-midhigh-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(16px, 5px); }
+}
+@keyframes wave-mid-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-18px, -5px); }
+}
+@keyframes wave-midlow-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(15px, 6px); }
+}
+@keyframes wave-fore-drift {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(-22px, -7px); }
+}
+#sun_disk {
   transform-box: fill-box;
   transform-origin: center;
-  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+  animation: sun-pulse 8.0s ease-in-out infinite;
+}
+#wave_rear {
+  animation: wave-rear-drift 6.0s ease-in-out infinite;
+}
+#wave_mid_high {
+  animation: wave-midhigh-drift 7.0s ease-in-out infinite;
+}
+#wave_mid {
+  animation: wave-mid-drift 8.0s ease-in-out infinite;
+}
+#wave_mid_low {
+  animation: wave-midlow-drift 6.5s ease-in-out infinite;
+}
+#wave_foreground {
+  animation: wave-fore-drift 7.5s ease-in-out infinite;
 }
 </style><defs>
     
