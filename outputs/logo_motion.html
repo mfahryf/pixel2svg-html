@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logo</title>
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --card-bg: rgba(18, 22, 32, 0.75);
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #38bdf8;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #stage-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 40px;
+    }
+
+    #svg-stage {
+      max-width: 80vw;
+      max-height: 75vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.45));
+      transition: transform 0.2s ease;
+    }
+
+    #svg-stage svg {
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      display: block;
+    }
+
+    /* Injected Contextual Keyframes */
+    
+@keyframes mbg-ambient-wave {
+  0%, 100% { transform: scale(0.85); opacity: 0.85; }
+  50% { transform: scale(1.15); opacity: 1.0; }
+}
+svg > g, svg > circle, svg > path:not([id*="bg"]) {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+}
+
+    /* HUD Controls */
+    #hud-panel {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+
+    .hud-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .subject-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .layer-badge {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      text-transform: none;
+      font-weight: 500;
+    }
+
+    .hud-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .hud-slider-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .hud-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 80px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      outline: none;
+    }
+    .hud-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    #fps-badge {
+      font-family: monospace;
+      font-size: 11px;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="stage-container">
+    <div id="svg-stage">
+      <svg viewBox="0 0 715 240" width="715" height="240">
+  <rect id="sky" width="715" height="240" fill="#eee1d0" />
+  <circle id="sun" cx="541" cy="57" r="25.5" fill="#ffffff" />
+  <path id="ridge-pink" fill="#f3c1a6" d="M 0.00 62.00 C 12.53 60.33 25.05 58.43 37.58 57.00 C 50.11 55.57 62.63 53.93 75.16 53.40 C 87.68 52.87 100.21 51.73 112.74 53.80 C 125.26 55.87 137.79 61.87 150.32 65.80 C 162.84 69.73 175.37 73.17 187.89 77.40 C 200.42 81.63 212.95 87.77 225.47 91.20 C 238.00 94.63 250.53 95.07 263.05 98.00 C 275.58 100.93 288.11 104.87 300.63 108.80 C 313.16 112.73 325.68 118.57 338.21 121.60 C 350.74 124.63 363.26 126.70 375.79 127.00 C 388.32 127.30 400.84 126.50 413.37 123.40 C 425.89 120.30 438.42 111.47 450.95 108.40 C 463.47 105.33 476.00 104.17 488.53 105.00 C 501.05 105.83 513.58 111.60 526.11 113.40 C 538.63 115.20 551.16 117.00 563.68 115.80 C 576.21 114.60 588.74 108.10 601.26 106.20 C 613.79 104.30 626.32 106.67 638.84 104.40 C 651.37 102.13 663.73 95.50 676.42 92.60 C 689.11 89.70 702.14 88.87 715.00 87.00 L 715.00 240.00 L 0.00 240.00 Z" />
+  <path id="ridge-orange" fill="#ef9d53" d="M 0.00 99.00 C 9.27 99.67 18.55 101.17 27.82 101.00 C 37.09 100.83 46.36 98.67 55.64 98.00 C 64.91 97.33 74.18 95.83 83.45 97.00 C 92.73 98.17 102.00 101.33 111.27 105.00 C 120.55 108.67 129.82 115.83 139.09 119.00 C 148.36 122.17 157.64 124.33 166.91 124.00 C 176.18 123.67 185.45 119.50 194.73 117.00 C 204.00 114.50 213.27 109.33 222.55 109.00 C 231.82 108.67 241.09 111.83 250.36 115.00 C 259.64 118.17 268.91 124.33 278.18 128.00 C 287.45 131.67 296.73 134.00 306.00 137.00 L 306.00 240.00 L 0.00 240.00 Z M 356.00 142.00 C 362.18 140.33 368.36 138.83 374.55 137.00 C 380.73 135.17 386.91 133.00 393.09 131.00 C 399.27 129.00 405.45 127.17 411.64 125.00 C 417.82 122.83 424.00 120.50 430.18 118.00 C 436.36 115.50 442.55 112.17 448.73 110.00 C 454.91 107.83 461.09 105.67 467.27 105.00 C 473.45 104.33 479.64 105.50 485.82 106.00 C 492.00 106.50 498.18 106.83 504.36 108.00 C 510.55 109.17 516.73 111.17 522.91 113.00 C 529.09 114.83 535.27 116.83 541.45 119.00 C 547.64 121.17 553.82 123.67 560.00 126.00 L 560.00 240.00 L 356.00 240.00 Z M 617.00 126.00 C 623.47 125.00 629.93 124.17 636.40 123.00 C 642.87 121.83 649.33 120.33 655.80 119.00 C 662.27 117.67 668.73 116.00 675.20 115.00 C 681.67 114.00 687.97 113.50 694.60 113.00 C 701.23 112.50 708.20 112.33 715.00 112.00 L 715.00 240.00 L 617.00 240.00 Z" />
+  <path id="ridge-brown" fill="#a6624d" d="M 0.00 148.00 C 9.76 145.00 19.52 141.83 29.29 139.00 C 39.05 136.17 48.81 132.17 58.57 131.00 C 68.33 129.83 78.10 131.00 87.86 132.00 C 97.62 133.00 107.38 135.00 117.14 137.00 C 126.90 139.00 136.67 141.50 146.43 144.00 C 156.19 146.50 165.95 149.00 175.71 152.00 C 185.48 155.00 195.24 158.67 205.00 162.00 L 205.00 240.00 L 0.00 240.00 Z M 387.00 153.00 C 392.33 151.33 397.67 149.50 403.00 148.00 C 408.33 146.50 413.67 145.00 419.00 144.00 C 424.33 143.00 429.67 141.83 435.00 142.00 C 440.33 142.17 445.67 144.00 451.00 145.00 C 456.33 146.00 461.67 147.00 467.00 148.00 L 467.00 240.00 L 387.00 240.00 Z" />
+  <path id="ridge-teal" fill="#005164" d="M 0.00 172.00 C 12.53 174.13 25.05 175.73 37.58 178.40 C 50.11 181.07 62.63 186.43 75.16 188.00 C 87.68 189.57 100.21 189.63 112.74 187.80 C 125.26 185.97 137.79 180.03 150.32 177.00 C 162.84 173.97 175.37 173.10 187.89 169.60 C 200.42 166.10 212.95 159.87 225.47 156.00 C 238.00 152.13 250.53 148.90 263.05 146.40 C 275.58 143.90 288.11 141.97 300.63 141.00 C 313.16 140.03 325.68 138.70 338.21 140.60 C 350.74 142.50 363.26 149.23 375.79 152.40 C 388.32 155.57 400.84 159.07 413.37 159.60 C 425.89 160.13 438.42 158.30 450.95 155.60 C 463.47 152.90 476.00 147.27 488.53 143.40 C 501.05 139.53 513.58 134.80 526.11 132.40 C 538.63 130.00 551.16 129.60 563.68 129.00 C 576.21 128.40 588.74 128.50 601.26 128.80 C 613.79 129.10 626.32 129.77 638.84 130.80 C 651.37 131.83 663.73 134.30 676.42 135.00 C 689.11 135.70 702.14 135.00 715.00 135.00 L 715.00 240.00 L 0.00 240.00 Z" />
+  <path id="ridge-navy" fill="#013b49" d="M 0.00 229.00 C 14.00 231.73 28.00 235.37 42.00 237.20 C 56.00 239.03 70.00 241.47 84.00 240.00 C 98.00 238.53 112.00 232.70 126.00 228.40 C 140.00 224.10 154.00 218.67 168.00 214.20 C 182.00 209.73 196.00 204.50 210.00 201.60 C 224.00 198.70 238.00 197.37 252.00 196.80 C 266.00 196.23 280.00 196.83 294.00 198.20 C 308.00 199.57 322.00 203.87 336.00 205.00 C 350.00 206.13 364.00 205.33 378.00 205.00 C 392.00 204.67 406.00 204.40 420.00 203.00 C 434.00 201.60 448.00 199.03 462.00 196.60 C 476.00 194.17 490.00 191.07 504.00 188.40 C 518.00 185.73 532.00 183.43 546.00 180.60 C 560.00 177.77 574.00 174.83 588.00 171.40 C 602.00 167.97 616.00 162.90 630.00 160.00 C 644.00 157.10 657.83 156.00 672.00 154.00 C 686.17 152.00 700.67 150.00 715.00 148.00 L 715.00 240.00 L 0.00 240.00 Z" />
+</svg>
+    </div>
+  </div>
+
+  <div id="hud-panel">
+    <div class="hud-meta">
+      <div class="subject-title">
+        Logo
+        <span class="badge">BACKGROUND</span>
+        <span id="fps-badge">60 FPS</span>
+      </div>
+      <div style="display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; max-width: 320px;">
+        <span class="badge layer-badge">Background Elements (Spatial Wave)</span>
+      </div>
+    </div>
+
+    <div class="hud-slider-group">
+      <span>Speed</span>
+      <input type="range" id="speed-slider" class="hud-slider" min="0.25" max="2.5" step="0.05" value="1.0">
+      <span id="speed-val">1.0x</span>
+    </div>
+
+    <button id="toggle-play-btn" class="hud-btn">⏸ Pause</button>
+    <button id="export-svg-btn" class="hud-btn">⬇ Export SVG</button>
+  </div>
+
+  <script>
+    const stage = document.getElementById("svg-stage");
+    const svgElem = stage.querySelector("svg");
+    const speedSlider = document.getElementById("speed-slider");
+    const speedVal = document.getElementById("speed-val");
+    const togglePlayBtn = document.getElementById("toggle-play-btn");
+    const exportBtn = document.getElementById("export-svg-btn");
+    const fpsBadge = document.getElementById("fps-badge");
+
+    // Real-time FPS Telemetry
+    let frameCount = 0;
+    let lastTime = performance.now();
+    function trackFps(now) {
+      frameCount++;
+      if (now - lastTime >= 1000) {
+        fpsBadge.textContent = `${frameCount} FPS`;
+        frameCount = 0;
+        lastTime = now;
+      }
+      requestAnimationFrame(trackFps);
+    }
+    requestAnimationFrame(trackFps);
+
+    // Play / Pause Toggle
+    let isPlaying = true;
+    togglePlayBtn.addEventListener("click", () => {
+      isPlaying = !isPlaying;
+      const state = isPlaying ? "running" : "paused";
+      svgElem.querySelectorAll("*").forEach(el => {
+        el.style.animationPlayState = state;
+      });
+      togglePlayBtn.textContent = isPlaying ? "⏸ Pause" : "▶ Play";
+    });
+
+    // Speed Multiplier
+    speedSlider.addEventListener("input", (e) => {
+      const speed = parseFloat(e.target.value);
+      speedVal.textContent = `${speed.toFixed(1)}x`;
+      svgElem.querySelectorAll("*").forEach(el => {
+        const computed = window.getComputedStyle(el);
+        if (computed.animationDuration && computed.animationDuration !== "0s") {
+          el.style.animationDuration = `${parseFloat(computed.animationDuration) / speed}s`;
+        }
+      });
+    });
+
+    // Export Standalone Animated SVG
+    exportBtn.addEventListener("click", () => {
+      const svgClone = svgElem.cloneNode(true);
+      const styleEl = document.createElement("style");
+      styleEl.textContent = `\n
+@keyframes mbg-ambient-wave {
+  0%, 100% { transform: scale(0.85); opacity: 0.85; }
+  50% { transform: scale(1.15); opacity: 1.0; }
+}
+svg > g, svg > circle, svg > path:not([id*="bg"]) {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mbg-ambient-wave 5.00s ease-in-out infinite;
+}\n`;
+      svgClone.insertBefore(styleEl, svgClone.firstChild);
+
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(svgClone);
+      const blob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Logo_motion.svg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>

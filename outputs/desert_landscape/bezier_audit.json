@@ -1,0 +1,24 @@
+{
+  "segment_count": 13,
+  "cubic_segments": 11,
+  "line_segments": 2,
+  "closed": true,
+  "budget": null,
+  "over_budget": false,
+  "median_segment_length": 76.272,
+  "short_segment_warnings": [],
+  "join_angle_threshold_degrees": 8.0,
+  "join_angle_warnings": [
+    {
+      "join_after_segment": 11,
+      "angle_degrees": 88.625
+    },
+    {
+      "join_after_segment": 12,
+      "angle_degrees": 90.0
+    }
+  ],
+  "input_svg": "outputs\\desert_landscape\\desert_landscape.svg",
+  "selected_path_index": 4,
+  "path_count": 7
+}

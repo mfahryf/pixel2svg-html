@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Desert Landscape Motion Background — Motion Background</title>
+  <style>
+    :root {
+      --bg-color: #110b18;
+      --fg-color: #eee1d0;
+      --hud-surface: rgba(18, 12, 28, 0.88);
+      --hud-border: rgba(255, 255, 255, 0.14);
+      --hud-text: #f0f0f5;
+      --hud-accent: #ff0055;
+      --hud-accent-glow: rgba(255, 0, 85, 0.4);
+      --anim-duration: 6.00s;
+      --anim-amp: 0.25;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-color);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--hud-text);
+      user-select: none;
+    }
+
+    /* Viewport Containers */
+    #viewport-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Hardware-Accelerated 60 FPS Canvas */
+    #bg-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* SVG DOM Container (when SVG Engine is toggled) */
+    #svg-stage {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    #svg-stage.active {
+      display: flex;
+    }
+
+    #svg-stage.fullbleed svg {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    #svg-stage.contained {
+      padding: 40px;
+    }
+
+    #svg-stage.contained svg {
+      width: min(85vw, 1100px);
+      height: auto;
+      max-height: 85vh;
+      display: block;
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    /* Subtle Ambient Vignette Overlay */
+    #vignette {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at center, transparent 45%, rgba(10, 5, 18, 0.55) 100%);
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Optional Content Mockup (Hidden by default) */
+    #content-mockup {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      text-align: center;
+      padding: 20px;
+      z-index: 5;
+      transition: opacity 0.3s ease;
+    }
+
+    #content-mockup.hidden {
+      opacity: 0;
+      display: none;
+    }
+
+    #content-mockup h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 30%, #ff80a6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    #content-mockup p {
+      font-size: clamp(0.9rem, 1.8vw, 1.25rem);
+      color: rgba(255, 255, 255, 0.8);
+      max-width: 600px;
+      line-height: 1.5;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Sleek Glassmorphism HUD */
+    #hud {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--hud-surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--hud-border);
+      border-radius: 20px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 100;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    #hud.minimized {
+      transform: translate(-50%, calc(100% + 40px));
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #hud-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 101;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--hud-surface);
+      border: 1px solid var(--hud-border);
+      color: white;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .hud-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-label {
+      color: rgba(255, 255, 255, 0.55);
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-right: 2px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn.active {
+      background: var(--hud-accent);
+      border-color: var(--hud-accent);
+      box-shadow: 0 0 12px var(--hud-accent-glow);
+    }
+
+    .badge {
+      background: rgba(0, 255, 170, 0.15);
+      color: #00ffaa;
+      border: 1px solid rgba(0, 255, 170, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input[type="range"] {
+      appearance: none;
+      width: 65px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.2);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: white;
+      cursor: pointer;
+    }
+
+    .divider {
+      width: 1px;
+      height: 22px;
+      background: var(--hud-border);
+    }
+
+    
+/* --- Motion Background Keyframes (Optimized: No will-change layer thrashing) --- */
+@keyframes mbg-wave {
+  0%, 100% {
+    transform: scale(0.750);
+    opacity: 0.73;
+  }
+  50% {
+    transform: scale(1.250);
+    opacity: 1;
+  }
+}
+
+@keyframes mbg-ripple {
+  0% {
+    transform: scale(0.750);
+    opacity: 0.73;
+  }
+  40% {
+    transform: scale(1.250);
+    opacity: 1;
+  }
+  80%, 100% {
+    transform: scale(0.750);
+    opacity: 0.73;
+  }
+}
+
+@keyframes mbg-breathe {
+  0%, 100% {
+    transform: scale(0.750);
+    opacity: 0.73;
+  }
+  50% {
+    transform: scale(1.250);
+    opacity: 1;
+  }
+}
+
+@keyframes mbg-shimmer {
+  0%, 100% {
+    transform: scale(0.92);
+    opacity: 0.73;
+  }
+  35% {
+    transform: scale(1.250);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95);
+    opacity: 0.73;
+  }
+}
+
+@keyframes mbg-drift {
+  0% {
+    transform: translate(0px, 0px) scale(0.750);
+    opacity: 0.73;
+  }
+  33% {
+    transform: translate(2px, -3px) scale(1.125);
+    opacity: 0.95;
+  }
+  66% {
+    transform: translate(-2px, 2px) scale(1.250);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0px, 0px) scale(0.750);
+    opacity: 0.73;
+  }
+}
+
+.mbg-elem {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-duration: 6.00s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.preset-wave .mbg-elem { animation-name: mbg-wave; }
+.preset-ripple .mbg-elem { animation-name: mbg-ripple; }
+.preset-breathe .mbg-elem { animation-name: mbg-breathe; }
+.preset-shimmer .mbg-elem { animation-name: mbg-shimmer; }
+.preset-drift .mbg-elem { animation-name: mbg-drift; }
+
+  </style>
+</head>
+<body>
+  <div id="viewport-container">
+    <canvas id="bg-canvas"></canvas>
+    <div id="svg-stage" class="fullbleed preset-drift">
+      <svg viewBox="0 0 715 240" width="715" height="240" class="preset-drift" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <rect id="sky" width="715" height="240" fill="#eee1d0" class="mbg-elem" style="animation-delay: -3.0s;" />
+  <circle id="sun" cx="541" cy="57" r="25.5" fill="#ffffff" class="mbg-elem" style="animation-delay: -3.294s;" />
+  <path id="ridge-pink" fill="#f3c1a6" d="M 0.00 62.00 C 12.53 60.33 25.05 58.43 37.58 57.00 C 50.11 55.57 62.63 53.93 75.16 53.40 C 87.68 52.87 100.21 51.73 112.74 53.80 C 125.26 55.87 137.79 61.87 150.32 65.80 C 162.84 69.73 175.37 73.17 187.89 77.40 C 200.42 81.63 212.95 87.77 225.47 91.20 C 238.00 94.63 250.53 95.07 263.05 98.00 C 275.58 100.93 288.11 104.87 300.63 108.80 C 313.16 112.73 325.68 118.57 338.21 121.60 C 350.74 124.63 363.26 126.70 375.79 127.00 C 388.32 127.30 400.84 126.50 413.37 123.40 C 425.89 120.30 438.42 111.47 450.95 108.40 C 463.47 105.33 476.00 104.17 488.53 105.00 C 501.05 105.83 513.58 111.60 526.11 113.40 C 538.63 115.20 551.16 117.00 563.68 115.80 C 576.21 114.60 588.74 108.10 601.26 106.20 C 613.79 104.30 626.32 106.67 638.84 104.40 C 651.37 102.13 663.73 95.50 676.42 92.60 C 689.11 89.70 702.14 88.87 715.00 87.00 L 715.00 240.00 L 0.00 240.00 Z" class="mbg-elem" style="animation-delay: -2.789s;" />
+  <path id="ridge-orange" fill="#ef9d53" d="M 0.00 99.00 C 9.27 99.67 18.55 101.17 27.82 101.00 C 37.09 100.83 46.36 98.67 55.64 98.00 C 64.91 97.33 74.18 95.83 83.45 97.00 C 92.73 98.17 102.00 101.33 111.27 105.00 C 120.55 108.67 129.82 115.83 139.09 119.00 C 148.36 122.17 157.64 124.33 166.91 124.00 C 176.18 123.67 185.45 119.50 194.73 117.00 C 204.00 114.50 213.27 109.33 222.55 109.00 C 231.82 108.67 241.09 111.83 250.36 115.00 C 259.64 118.17 268.91 124.33 278.18 128.00 C 287.45 131.67 296.73 134.00 306.00 137.00 L 306.00 240.00 L 0.00 240.00 Z M 356.00 142.00 C 362.18 140.33 368.36 138.83 374.55 137.00 C 380.73 135.17 386.91 133.00 393.09 131.00 C 399.27 129.00 405.45 127.17 411.64 125.00 C 417.82 122.83 424.00 120.50 430.18 118.00 C 436.36 115.50 442.55 112.17 448.73 110.00 C 454.91 107.83 461.09 105.67 467.27 105.00 C 473.45 104.33 479.64 105.50 485.82 106.00 C 492.00 106.50 498.18 106.83 504.36 108.00 C 510.55 109.17 516.73 111.17 522.91 113.00 C 529.09 114.83 535.27 116.83 541.45 119.00 C 547.64 121.17 553.82 123.67 560.00 126.00 L 560.00 240.00 L 356.00 240.00 Z M 617.00 126.00 C 623.47 125.00 629.93 124.17 636.40 123.00 C 642.87 121.83 649.33 120.33 655.80 119.00 C 662.27 117.67 668.73 116.00 675.20 115.00 C 681.67 114.00 687.97 113.50 694.60 113.00 C 701.23 112.50 708.20 112.33 715.00 112.00 L 715.00 240.00 L 617.00 240.00 Z" class="mbg-elem" style="animation-delay: -3.143s;" />
+  <path id="ridge-brown" fill="#a6624d" d="M 0.00 148.00 C 9.76 145.00 19.52 141.83 29.29 139.00 C 39.05 136.17 48.81 132.17 58.57 131.00 C 68.33 129.83 78.10 131.00 87.86 132.00 C 97.62 133.00 107.38 135.00 117.14 137.00 C 126.90 139.00 136.67 141.50 146.43 144.00 C 156.19 146.50 165.95 149.00 175.71 152.00 C 185.48 155.00 195.24 158.67 205.00 162.00 L 205.00 240.00 L 0.00 240.00 Z M 387.00 153.00 C 392.33 151.33 397.67 149.50 403.00 148.00 C 408.33 146.50 413.67 145.00 419.00 144.00 C 424.33 143.00 429.67 141.83 435.00 142.00 C 440.33 142.17 445.67 144.00 451.00 145.00 C 456.33 146.00 461.67 147.00 467.00 148.00 L 467.00 240.00 L 387.00 240.00 Z" class="mbg-elem" style="animation-delay: -2.744s;" />
+  <path id="ridge-teal" fill="#005164" d="M 0.00 172.00 C 12.53 174.13 25.05 175.73 37.58 178.40 C 50.11 181.07 62.63 186.43 75.16 188.00 C 87.68 189.57 100.21 189.63 112.74 187.80 C 125.26 185.97 137.79 180.03 150.32 177.00 C 162.84 173.97 175.37 173.10 187.89 169.60 C 200.42 166.10 212.95 159.87 225.47 156.00 C 238.00 152.13 250.53 148.90 263.05 146.40 C 275.58 143.90 288.11 141.97 300.63 141.00 C 313.16 140.03 325.68 138.70 338.21 140.60 C 350.74 142.50 363.26 149.23 375.79 152.40 C 388.32 155.57 400.84 159.07 413.37 159.60 C 425.89 160.13 438.42 158.30 450.95 155.60 C 463.47 152.90 476.00 147.27 488.53 143.40 C 501.05 139.53 513.58 134.80 526.11 132.40 C 538.63 130.00 551.16 129.60 563.68 129.00 C 576.21 128.40 588.74 128.50 601.26 128.80 C 613.79 129.10 626.32 129.77 638.84 130.80 C 651.37 131.83 663.73 134.30 676.42 135.00 C 689.11 135.70 702.14 135.00 715.00 135.00 L 715.00 240.00 L 0.00 240.00 Z" class="mbg-elem" style="animation-delay: -3.356s;" />
+  <path id="ridge-navy" fill="#013b49" d="M 0.00 229.00 C 14.00 231.73 28.00 235.37 42.00 237.20 C 56.00 239.03 70.00 241.47 84.00 240.00 C 98.00 238.53 112.00 232.70 126.00 228.40 C 140.00 224.10 154.00 218.67 168.00 214.20 C 182.00 209.73 196.00 204.50 210.00 201.60 C 224.00 198.70 238.00 197.37 252.00 196.80 C 266.00 196.23 280.00 196.83 294.00 198.20 C 308.00 199.57 322.00 203.87 336.00 205.00 C 350.00 206.13 364.00 205.33 378.00 205.00 C 392.00 204.67 406.00 204.40 420.00 203.00 C 434.00 201.60 448.00 199.03 462.00 196.60 C 476.00 194.17 490.00 191.07 504.00 188.40 C 518.00 185.73 532.00 183.43 546.00 180.60 C 560.00 177.77 574.00 174.83 588.00 171.40 C 602.00 167.97 616.00 162.90 630.00 160.00 C 644.00 157.10 657.83 156.00 672.00 154.00 C 686.17 152.00 700.67 150.00 715.00 148.00 L 715.00 240.00 L 0.00 240.00 Z" class="mbg-elem" style="animation-delay: -3.794s;" />
+</svg>
+    </div>
+  </div>
+
+  <div id="vignette"></div>
+
+  <div id="content-mockup" class="hidden">
+    <h1>Aesthetic Motion Background</h1>
+    <p>Pure vector-driven ambient animation running at 60 FPS.</p>
+  </div>
+
+  <button id="hud-toggle" title="Toggle Controls">⚙</button>
+
+  <aside id="hud">
+    <div class="hud-group">
+      <span class="hud-label">FPS</span>
+      <span class="badge" id="fps-badge">60 FPS</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="hud-group">
+      <span class="hud-label">Preset</span>
+      <button class="btn preset-btn active" data-preset="wave">Wave</button>
+      <button class="btn preset-btn" data-preset="ripple">Ripple</button>
+      <button class="btn preset-btn" data-preset="breathe">Breathe</button>
+      <button class="btn preset-btn" data-preset="shimmer">Shimmer</button>
+      <button class="btn preset-btn" data-preset="drift">Drift</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="hud-group">
+      <span class="hud-label">Speed</span>
+      <div class="slider-wrap">
+        <input type="range" id="speed-slider" min="0.2" max="2.5" step="0.1" value="1.0">
+        <span id="speed-val" style="font-size:11px;min-width:28px">1.0x</span>
+      </div>
+    </div>
+
+    <div class="hud-group">
+      <span class="hud-label">Amp</span>
+      <div class="slider-wrap">
+        <input type="range" id="amp-slider" min="0.1" max="0.8" step="0.05" value="0.25">
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="hud-group">
+      <button class="btn active" id="engine-btn" title="Toggle Engine between Canvas (60 FPS) and SVG (DOM)">Canvas 60fps</button>
+      <button class="btn" id="view-mode-btn" title="Toggle Fullbleed / Contained">Fit: Bleed</button>
+      <button class="btn" id="mouse-react-btn" title="Enable Interactive Mouse Proximity">Mouse: Off</button>
+      <button class="btn" id="export-svg-btn" title="Download Standalone Animated SVG">Export SVG</button>
+    </div>
+  </aside>
+
+  <script>
+    const DOTS = [{"x":357.5,"y":120.0,"r":1.5},{"x":541.0,"y":57.0,"r":25.5},{"x":357.04,"y":99.13,"r":1.5},{"x":377.53,"y":124.24,"r":1.5},{"x":241.57,"y":152.74,"r":1.5},{"x":357.04,"y":155.86,"r":1.5},{"x":357.05,"y":199.63,"r":1.5}];
+    const ELEMS = [{"id":"sky","x":357.5,"y":120.0},{"id":"sun","x":541.0,"y":57.0},{"id":"ridge-pink","x":357.04,"y":99.13},{"id":"ridge-orange","x":377.53,"y":124.24},{"id":"ridge-brown","x":241.57,"y":152.74},{"id":"ridge-teal","x":357.04,"y":155.86},{"id":"ridge-navy","x":357.05,"y":199.63}];
+    const VB = {"minX": 0.0, "minY": 0.0, "w": 715.0, "h": 240.0};
+    const bgColor = "#110b18";
+    const fgColor = "#eee1d0";
+
+    const canvas = document.getElementById("bg-canvas");
+    const ctx = canvas.getContext("2d", { alpha: false });
+    const svgStage = document.getElementById("svg-stage");
+    const svgElem = svgStage.querySelector("svg");
+    const hud = document.getElementById("hud");
+    const hudToggle = document.getElementById("hud-toggle");
+    const fpsBadge = document.getElementById("fps-badge");
+    const speedSlider = document.getElementById("speed-slider");
+    const speedVal = document.getElementById("speed-val");
+    const ampSlider = document.getElementById("amp-slider");
+    const engineBtn = document.getElementById("engine-btn");
+    const viewModeBtn = document.getElementById("view-mode-btn");
+    const mouseBtn = document.getElementById("mouse-react-btn");
+    const exportBtn = document.getElementById("export-svg-btn");
+    const presetButtons = document.querySelectorAll(".preset-btn");
+
+    let currentPreset = "drift";
+    let baseDuration = 6.00;
+    let currentSpeed = 1.0;
+    let currentAmp = 0.25;
+    let currentEngine = "canvas"; // "canvas" or "svg"
+    let isFullbleed = true;
+    let mouseReactive = false;
+    let mouseSvgX = -9999;
+    let mouseSvgY = -9999;
+
+    const maxDiag = Math.hypot(VB.w, VB.h) || 1.0;
+    const rad = 45 * Math.PI / 180;
+    const cosA = Math.cos(rad);
+    const sinA = Math.sin(rad);
+    const cxCenter = VB.minX + VB.w / 2;
+    const cyCenter = VB.minY + VB.h / 2;
+
+    // Canvas Resize Handling with DPR
+    let dpr = window.devicePixelRatio || 1;
+    function resizeCanvas() {
+      dpr = window.devicePixelRatio || 1;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    // High-Performance Canvas2D Render Loop
+    let lastTime = performance.now();
+    let frameCount = 0;
+    let lastFpsUpdate = performance.now();
+
+    function renderLoop(now) {
+      if (currentEngine === "canvas") {
+        frameCount++;
+        if (now - lastFpsUpdate >= 500) {
+          const fps = Math.round((frameCount * 1000) / (now - lastFpsUpdate));
+          fpsBadge.textContent = `${fps} FPS`;
+          fpsBadge.style.color = fps >= 50 ? "#00ffaa" : "#ffbb00";
+          frameCount = 0;
+          lastFpsUpdate = now;
+        }
+
+        const W = canvas.width / dpr;
+        const H = canvas.height / dpr;
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+
+        // Fill background
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, W, H);
+
+        // Calculate viewport mapping
+        let scale, offsetX, offsetY;
+        if (isFullbleed) {
+          scale = Math.max(W / VB.w, H / VB.h);
+          offsetX = (W - VB.w * scale) / 2;
+          offsetY = (H - VB.h * scale) / 2;
+        } else {
+          scale = Math.min((W * 0.85) / VB.w, (H * 0.85) / VB.h);
+          offsetX = (W - VB.w * scale) / 2;
+          offsetY = (H - VB.h * scale) / 2;
+        }
+
+        const t = (now / 1000) * currentSpeed;
+        const omega = (2 * Math.PI) / baseDuration;
+        const mouseRadius = VB.w * 0.12;
+
+        ctx.fillStyle = fgColor;
+        ctx.beginPath();
+
+        for (let i = 0; i < DOTS.length; i++) {
+          const dot = DOTS[i];
+          let mod = 0;
+          if (currentPreset === "wave") {
+            const proj = dot.x * cosA + dot.y * sinA;
+            const phase = (proj / maxDiag) * 2.0;
+            mod = Math.sin(t * omega - phase * Math.PI * 2);
+          } else if (currentPreset === "ripple") {
+            const dist = Math.hypot(dot.x - cxCenter, dot.y - cyCenter);
+            const phase = (dist / (maxDiag * 0.5)) * 1.5;
+            mod = Math.sin(t * omega - phase * Math.PI * 2);
+          } else if (currentPreset === "breathe") {
+            const dist = Math.hypot(dot.x - cxCenter, dot.y - cyCenter);
+            const phase = (dist / maxDiag) * 0.4;
+            mod = Math.sin(t * omega - phase * Math.PI * 2);
+          } else if (currentPreset === "shimmer") {
+            const proj = (dot.x + dot.y) / (VB.w + VB.h);
+            const phase = (proj - (t * 0.25) % 1.0);
+            mod = Math.exp(-Math.pow(phase * 8, 2)) * 1.5;
+          } else if (currentPreset === "drift") {
+            mod = Math.sin(t * omega + dot.x * 0.05);
+          }
+
+          let effScale = 1.0 + currentAmp * mod;
+          let px = dot.x;
+          let py = dot.y;
+
+          if (mouseReactive) {
+            const mdx = px - mouseSvgX;
+            const mdy = py - mouseSvgY;
+            const mdist = Math.hypot(mdx, mdy);
+            if (mdist < mouseRadius && mdist > 0.001) {
+              const push = (1 - mdist / mouseRadius) * 6;
+              px += (mdx / mdist) * push;
+              py += (mdy / mdist) * push;
+              effScale += (1 - mdist / mouseRadius) * 0.4;
+            }
+          }
+
+          const sx = offsetX + px * scale;
+          const sy = offsetY + py * scale;
+          const sr = Math.max(0.2, dot.r * effScale * scale);
+
+          ctx.moveTo(sx + sr, sy);
+          ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+        }
+
+        ctx.fill();
+        ctx.restore();
+      } else {
+        // SVG engine active
+        frameCount++;
+        if (now - lastFpsUpdate >= 500) {
+          const fps = Math.round((frameCount * 1000) / (now - lastFpsUpdate));
+          fpsBadge.textContent = `${fps} FPS (SVG)`;
+          frameCount = 0;
+          lastFpsUpdate = now;
+        }
+      }
+      requestAnimationFrame(renderLoop);
+    }
+    requestAnimationFrame(renderLoop);
+
+    // Apply delays for SVG mode
+    function applySvgDelays(preset) {
+      const dur = baseDuration / currentSpeed;
+      ELEMS.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (!el) return;
+        let delay = 0;
+        if (preset === "wave") {
+          const proj = item.x * cosA + item.y * sinA;
+          const phase = (proj / maxDiag) * 2.0;
+          delay = -(phase % 1.0) * dur;
+        } else if (preset === "ripple") {
+          const dist = Math.hypot(item.x - cxCenter, item.y - cyCenter);
+          const phase = (dist / (maxDiag * 0.5)) * 1.5;
+          delay = -(phase % 1.0) * dur;
+        } else if (preset === "breathe") {
+          const dist = Math.hypot(item.x - cxCenter, item.y - cyCenter);
+          const phase = (dist / maxDiag) * 0.4;
+          delay = -(phase % 1.0) * dur;
+        } else if (preset === "shimmer") {
+          const proj = (item.x + item.y) / (VB.w + VB.h || 1.0);
+          delay = -(proj % 1.0) * dur;
+        } else if (preset === "drift") {
+          const phase = ((item.x / VB.w) * 0.6 + (item.y / VB.h) * 0.4);
+          delay = -(phase % 1.0) * dur;
+        }
+        el.style.animationDelay = `${delay.toFixed(3)}s`;
+        el.style.animationDuration = `${dur.toFixed(2)}s`;
+      });
+    }
+
+    function setPreset(p) {
+      currentPreset = p;
+      presetButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.preset === p));
+      if (currentEngine === "svg") {
+        svgStage.className = svgStage.className.replace(/preset-\w+/, `preset-${p}`);
+        applySvgDelays(p);
+      }
+    }
+
+    presetButtons.forEach(btn => {
+      btn.addEventListener("click", () => setPreset(btn.dataset.preset));
+    });
+
+    speedSlider.addEventListener("input", (e) => {
+      currentSpeed = parseFloat(e.target.value);
+      speedVal.textContent = `${currentSpeed.toFixed(1)}x`;
+      if (currentEngine === "svg") applySvgDelays(currentPreset);
+    });
+
+    ampSlider.addEventListener("input", (e) => {
+      currentAmp = parseFloat(e.target.value);
+      document.documentElement.style.setProperty("--anim-amp", currentAmp.toFixed(2));
+    });
+
+    // Toggle between Canvas (60 FPS) and SVG (DOM)
+    engineBtn.addEventListener("click", () => {
+      if (currentEngine === "canvas") {
+        currentEngine = "svg";
+        canvas.style.display = "none";
+        svgStage.classList.add("active");
+        engineBtn.textContent = "Engine: SVG (DOM)";
+        engineBtn.classList.remove("active");
+        setPreset(currentPreset);
+      } else {
+        currentEngine = "canvas";
+        canvas.style.display = "block";
+        svgStage.classList.remove("active");
+        engineBtn.textContent = "Canvas 60fps";
+        engineBtn.classList.add("active");
+      }
+    });
+
+    viewModeBtn.addEventListener("click", () => {
+      isFullbleed = !isFullbleed;
+      if (isFullbleed) {
+        viewModeBtn.textContent = "Fit: Bleed";
+        svgStage.classList.remove("contained");
+        svgStage.classList.add("fullbleed");
+        svgElem.setAttribute("preserveAspectRatio", "xMidYMid slice");
+      } else {
+        viewModeBtn.textContent = "Fit: Card";
+        svgStage.classList.remove("fullbleed");
+        svgStage.classList.add("contained");
+        svgElem.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      }
+    });
+
+    hudToggle.addEventListener("click", () => {
+      hud.classList.toggle("minimized");
+    });
+
+    mouseBtn.addEventListener("click", () => {
+      mouseReactive = !mouseReactive;
+      mouseBtn.textContent = mouseReactive ? "Mouse: On" : "Mouse: Off";
+      mouseBtn.classList.toggle("active", mouseReactive);
+      if (!mouseReactive) {
+        mouseSvgX = -9999;
+        mouseSvgY = -9999;
+        if (currentEngine === "svg") {
+          ELEMS.forEach(item => {
+            const el = document.getElementById(item.id);
+            if (el) el.style.transform = "";
+          });
+        }
+      }
+    });
+
+    window.addEventListener("pointermove", (e) => {
+      if (!mouseReactive) return;
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      let scale, offsetX, offsetY;
+      if (isFullbleed) {
+        scale = Math.max(W / VB.w, H / VB.h);
+        offsetX = (W - VB.w * scale) / 2;
+        offsetY = (H - VB.h * scale) / 2;
+      } else {
+        scale = Math.min((W * 0.85) / VB.w, (H * 0.85) / VB.h);
+        offsetX = (W - VB.w * scale) / 2;
+        offsetY = (H - VB.h * scale) / 2;
+      }
+      mouseSvgX = (e.clientX - offsetX) / scale;
+      mouseSvgY = (e.clientY - offsetY) / scale;
+
+      if (currentEngine === "svg") {
+        const radius = VB.w * 0.12;
+        ELEMS.forEach(item => {
+          const dx = item.x - mouseSvgX;
+          const dy = item.y - mouseSvgY;
+          const d = Math.hypot(dx, dy);
+          if (d < radius && d > 0.001) {
+            const el = document.getElementById(item.id);
+            if (!el) return;
+            const force = (1 - d / radius) * 6;
+            el.style.transform = `translate(${(dx/d*force).toFixed(1)}px, ${(dy/d*force).toFixed(1)}px) scale(1.3)`;
+          }
+        });
+      }
+    });
+
+    // Instant Standalone SVG Export
+    exportBtn.addEventListener("click", () => {
+      const svgClone = svgElem.cloneNode(true);
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svgClone);
+      const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `motion_bg_${currentPreset}.svg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>

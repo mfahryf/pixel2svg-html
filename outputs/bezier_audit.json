@@ -1,0 +1,40 @@
+{
+  "segment_count": 33,
+  "cubic_segments": 27,
+  "line_segments": 6,
+  "closed": true,
+  "budget": null,
+  "over_budget": false,
+  "median_segment_length": 27.884,
+  "short_segment_warnings": [],
+  "join_angle_threshold_degrees": 8.0,
+  "join_angle_warnings": [
+    {
+      "join_after_segment": 11,
+      "angle_degrees": 72.067
+    },
+    {
+      "join_after_segment": 12,
+      "angle_degrees": 90.0
+    },
+    {
+      "join_after_segment": 24,
+      "angle_degrees": 69.342
+    },
+    {
+      "join_after_segment": 25,
+      "angle_degrees": 90.0
+    },
+    {
+      "join_after_segment": 31,
+      "angle_degrees": 92.778
+    },
+    {
+      "join_after_segment": 32,
+      "angle_degrees": 90.0
+    }
+  ],
+  "input_svg": "outputs\\logo.svg",
+  "selected_path_index": 1,
+  "path_count": 5
+}

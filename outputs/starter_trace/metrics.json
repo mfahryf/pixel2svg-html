@@ -1,0 +1,54 @@
+{
+  "input": "C:\\Users\\fahry.firmansyah\\Downloads\\image (3).png",
+  "foreground_detection": {
+    "mode": "alpha",
+    "alpha_threshold": 12
+  },
+  "groups": [
+    {
+      "fill": "#aeb1b0",
+      "area_pixels": 27335,
+      "loop_count": 3,
+      "point_count": 114
+    },
+    {
+      "fill": "#adb1af",
+      "area_pixels": 6775,
+      "loop_count": 278,
+      "point_count": 1203
+    },
+    {
+      "fill": "#999999",
+      "area_pixels": 4182,
+      "loop_count": 4,
+      "point_count": 66
+    },
+    {
+      "fill": "#e79f9e",
+      "area_pixels": 1737,
+      "loop_count": 1,
+      "point_count": 14
+    },
+    {
+      "fill": "#aeb2b0",
+      "area_pixels": 241,
+      "loop_count": 163,
+      "point_count": 652
+    }
+  ],
+  "metrics": {
+    "source_foreground_pixels": 40270,
+    "vector_foreground_pixels": 40539,
+    "intersection_pixels": 39821,
+    "union_pixels": 40988,
+    "iou": 0.971528,
+    "recall_source_covered_by_vector": 0.98885,
+    "precision_vector_inside_source": 0.982289
+  },
+  "outputs": {
+    "svg": "outputs\\starter_trace\\logo.svg",
+    "html": "outputs\\starter_trace\\logo.html",
+    "vector_render": "outputs\\starter_trace\\vector_render.png",
+    "overlay": "outputs\\starter_trace\\overlay.png"
+  }
+}

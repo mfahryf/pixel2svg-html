@@ -1,0 +1,43 @@
+# Local Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS/Editor artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Video deliverables (large binary media rendered on demand)
+*.mp4
+*.mov
+*.avi
+*.mkv
+outputs/**/*.mp4
+outputs/**/*.mov
+
+# Intermediate fitting scratch and debug caches
+fit_work/
+outputs/**/fit_work/
+outputs/**/fit_iterations/
+*.log
+*.tmp
+*.bak
+
+# Temporary debug test screenshots and extracted frames
+test_*.png
+render_test_*.png
+extracted_frame_*.png
+outputs/**/test_*.png
+outputs/**/render_test_*.png
+outputs/**/extracted_frame_*.png
+
+# Node / Web caches (if any)
+node_modules/
+.npm/

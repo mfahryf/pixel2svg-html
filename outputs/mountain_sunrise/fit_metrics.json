@@ -1,0 +1,8 @@
+{
+  "svg": "outputs\\mountain_sunrise\\mountain_sunrise.svg",
+  "source": "outputs\\mountain_sunrise\\source.png",
+  "overlay": "outputs\\mountain_sunrise\\fit_iterations\\02_overlay.png",
+  "iou": 0.706,
+  "src_only_px": 6200,
+  "render_only_px": 4795
+}

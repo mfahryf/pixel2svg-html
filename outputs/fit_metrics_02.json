@@ -1,0 +1,8 @@
+{
+  "svg": "outputs\\logo.svg",
+  "source": "C:\\Users\\fahry.firmansyah\\Downloads\\240_F_443373172_qUEYp2jWRalQ311FzgCOlYgibZhUm6hM.jpg",
+  "overlay": "outputs\\fit_iterations\\02_refined_overlay.png",
+  "iou": 0.9749,
+  "src_only_px": 3890,
+  "render_only_px": 118
+}

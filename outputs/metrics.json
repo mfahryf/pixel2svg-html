@@ -1,0 +1,65 @@
+{
+  "input": "C:\\Users\\fahry.firmansyah\\Downloads\\240_F_248855155_5kCZUt780YV5kke8LwgObqa0tgpDtmlp.jpg",
+  "foreground_detection": {
+    "mode": "background-distance",
+    "background_rgb": [
+      46.0,
+      21.0,
+      60.0
+    ],
+    "distance_threshold": 24.0
+  },
+  "groups": [
+    {
+      "fill": "#cf0546",
+      "area_pixels": 23528,
+      "loop_count": 1735,
+      "point_count": 7596
+    },
+    {
+      "fill": "#500f3d",
+      "area_pixels": 1687,
+      "loop_count": 1386,
+      "point_count": 5533
+    },
+    {
+      "fill": "#141a37",
+      "area_pixels": 1021,
+      "loop_count": 881,
+      "point_count": 3524
+    },
+    {
+      "fill": "#501342",
+      "area_pixels": 864,
+      "loop_count": 771,
+      "point_count": 3083
+    },
+    {
+      "fill": "#4d1233",
+      "area_pixels": 552,
+      "loop_count": 490,
+      "point_count": 1959
+    },
+    {
+      "fill": "#4d1841",
+      "area_pixels": 456,
+      "loop_count": 444,
+      "point_count": 1776
+    }
+  ],
+  "metrics": {
+    "source_foreground_pixels": 28108,
+    "vector_foreground_pixels": 35375,
+    "intersection_pixels": 26078,
+    "union_pixels": 37405,
+    "iou": 0.69718,
+    "recall_source_covered_by_vector": 0.927779,
+    "precision_vector_inside_source": 0.737187
+  },
+  "outputs": {
+    "svg": "outputs\\logo.svg",
+    "html": "outputs\\logo.html",
+    "vector_render": "outputs\\vector_render.png",
+    "overlay": "outputs\\overlay.png"
+  }
+}

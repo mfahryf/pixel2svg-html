@@ -1,0 +1,2018 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minimalist Mountain Sunrise Motion</title>
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --card-bg: rgba(18, 22, 32, 0.75);
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #38bdf8;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #stage-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    #svg-stage {
+      position: relative;
+      transition: border-radius 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* 16:9 Cinematic Fit: fits shortest side (cover) with pan navigation */
+    #svg-stage.mode-16-9 {
+      width: min(96vw, calc((100vh - 40px) * 16 / 9), 1360px);
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #000;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+    #svg-stage.mode-16-9.is-dragging {
+      cursor: grabbing;
+    }
+
+    #pan-canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      will-change: transform;
+      transform-origin: 0 0;
+    }
+
+    #pan-canvas svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Contained: original bounds */
+    #svg-stage.mode-contained {
+      position: relative;
+      width: min(96vw, 1360px);
+      max-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.45));
+      overflow: visible;
+      cursor: default;
+    }
+
+    #svg-stage.mode-contained #pan-canvas {
+      position: static;
+      width: 100% !important;
+      height: auto !important;
+      transform: none !important;
+    }
+
+    #svg-stage.mode-contained svg {
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      display: block;
+    }
+  </style>
+
+  <!-- Injected Contextual Keyframes (Dynamic Motion Style Switcher) -->
+  <style id="motion-css-tag">
+    /* Zen Sunrise: Solar Breathing & Subtle Atmospheric Mountain Parallax */
+@keyframes sun-zen-pulse {
+  0%, 100% {
+    transform: translateY(0px) scale(1.0);
+    filter: drop-shadow(0 0 6px rgba(248, 188, 4, 0.4));
+  }
+  50% {
+    transform: translateY(-6px) scale(1.04);
+    filter: drop-shadow(0 0 18px rgba(248, 188, 4, 0.75));
+  }
+}
+
+@keyframes left-crag-drift {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(-3px, -1.5px);
+  }
+}
+
+@keyframes left-saddle-breathe {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(3px, -2px);
+  }
+}
+
+@keyframes center-ridge-drift {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(0px, -2.5px);
+  }
+}
+
+@keyframes right-saddle-sway {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(-3.5px, -1.5px);
+  }
+}
+
+@keyframes right-summit-drift {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(4px, -2px);
+  }
+}
+
+#sun {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sun-zen-pulse 10.0s ease-in-out infinite;
+}
+
+#lines_left_crag {
+  animation: left-crag-drift 10.0s ease-in-out infinite;
+}
+
+#lines_left_saddle {
+  animation: left-saddle-breathe 8.5s ease-in-out infinite;
+}
+
+#lines_center_sun {
+  animation: center-ridge-drift 7.5s ease-in-out infinite;
+}
+
+#lines_right_saddle {
+  animation: right-saddle-sway 9.0s ease-in-out infinite;
+}
+
+#lines_right_summit {
+  animation: right-summit-drift 10.0s ease-in-out infinite;
+}
+  </style>
+
+  <style>
+    /* Ultra-Slim Translucent Glass HUD Dock: 2 Rows, Nearly Full Screen Width */
+    #hud-panel {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 1320px;
+      box-sizing: border-box;
+      background: rgba(10, 14, 23, 0.45);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      padding: 8px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.50);
+      z-index: 100;
+      transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      user-select: none;
+    }
+    #hud-panel:hover {
+      background: rgba(10, 14, 23, 0.70);
+      border-color: rgba(255, 255, 255, 0.24);
+      box-shadow: 0 14px 48px rgba(0, 0, 0, 0.60);
+    }
+
+    .hud-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .hud-row.hud-row-secondary {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 7px;
+    }
+
+    .hud-group-left, .hud-group-center, .hud-group-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .hud-divider {
+      width: 1px;
+      height: 16px;
+      background: rgba(255, 255, 255, 0.12);
+      flex-shrink: 0;
+    }
+
+    .hud-meta-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .subject-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      line-height: 1.2;
+    }
+
+    #fps-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10px;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 1px 5px;
+      border-radius: 4px;
+      line-height: 1.2;
+    }
+
+    .hud-timer-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      color: #94a3b8;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      padding: 3px 8px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+      height: 24px;
+      box-sizing: border-box;
+      width: 154px;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    #loop-time-cur {
+      display: inline-block;
+      width: 38px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    #loop-time-total {
+      display: inline-block;
+      width: 38px;
+      text-align: left;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+    }
+
+    #speed-val {
+      display: inline-block;
+      width: 30px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    #pan-val {
+      display: inline-block;
+      width: 34px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .hud-pan-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      transition: opacity 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .hud-pan-group.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .hud-pan-btn-group {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 1px 3px;
+      gap: 2px;
+      height: 24px;
+      box-sizing: border-box;
+    }
+
+    .hud-mini-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 9999px;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.15s ease;
+    }
+    .hud-mini-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+    .hud-mini-btn.active {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+    }
+    .hud-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 24px;
+      white-space: nowrap;
+    }
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.20);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .hud-slider-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .hud-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 60px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      outline: none;
+    }
+    .hud-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    .hud-select {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      height: 24px;
+      transition: all 0.15s ease;
+    }
+    .hud-select:hover, .hud-select:focus {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: var(--accent);
+    }
+    .hud-select option {
+      background: #181c24;
+      color: #fff;
+    }
+
+    /* Export MP4 Modal Dialog */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.70);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 540px;
+      background: rgba(18, 24, 38, 0.94);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 20px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      color: var(--text);
+      animation: modalFadeIn 0.2s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .modal-body {
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .modal-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .modal-select {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f1f5f9;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .modal-select:hover, .modal-select:focus {
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.10);
+    }
+    .modal-select option {
+      background: #181c24;
+      color: #fff;
+    }
+
+    .modal-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .modal-radio {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: #cbd5e1;
+    }
+
+    .modal-info-box {
+      background: rgba(56, 189, 248, 0.06);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .info-label {
+      color: #94a3b8;
+    }
+    .info-val {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #10b981);
+      transition: width 0.1s linear;
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+    }
+
+    .modal-btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .modal-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .modal-btn-primary {
+      background: var(--accent);
+      color: #04121d;
+      font-weight: 700;
+    }
+    .modal-btn-primary:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+    }
+    .modal-btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="stage-container">
+    <div id="svg-stage" class="mode-16-9">
+      <div id="pan-canvas">
+        <svg viewBox="0 0 569 240" width="569" height="240">
+  <defs>
+    <radialGradient id="sun-gradient" cx="45%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#f8bc04" />
+      <stop offset="100%" stop-color="#e69c02" />
+    </radialGradient>
+  </defs>
+
+  
+  <rect id="sky" x="-30" y="-20" width="630" height="280" fill="#fffbe8" />
+
+  
+  <circle id="sun" cx="284.0" cy="119.5" r="75.2" fill="url(#sun-gradient)" />
+
+  
+  <g id="mountain_bodies">
+    <path id="mountain_body" d="M -30 260 L -30 129 L 0 129 L 4 126 L 8 126 L 12 128 L 16 129 L 20 130 L 24 131 L 28 131 L 32 132 L 36 132 L 40 131 L 44 130 L 48 130 L 52 132 L 56 134 L 60 138 L 64 138 L 68 135 L 72 132 L 76 129 L 80 127 L 84 123 L 88 120 L 92 116 L 96 114 L 100 111 L 104 107 L 108 104 L 112 100 L 116 95 L 120 98 L 124 102 L 128 111 L 132 120 L 136 126 L 140 127 L 144 124 L 148 121 L 152 119 L 156 117 L 160 119 L 164 121 L 168 123 L 172 125 L 176 129 L 180 132 L 184 138 L 188 142 L 192 146 L 196 151 L 200 155 L 204 153 L 208 152 L 212 149 L 216 147 L 220 145 L 224 142 L 228 141 L 232 139 L 236 140 L 240 150 L 244 155 L 248 157 L 252 156 L 256 161 L 260 164 L 264 163 L 268 161 L 272 165 L 276 168 L 280 171 L 284 173 L 288 174 L 292 176 L 296 175 L 300 174 L 304 172 L 308 171 L 312 170 L 316 170 L 320 167 L 324 163 L 328 159 L 332 153 L 336 150 L 340 147 L 344 148 L 348 149 L 352 150 L 356 150 L 360 150 L 364 153 L 368 156 L 372 158 L 376 156 L 380 154 L 384 153 L 388 151 L 392 150 L 396 148 L 400 145 L 404 143 L 408 141 L 412 140 L 416 141 L 420 145 L 424 150 L 428 152 L 432 157 L 436 163 L 440 162 L 444 159 L 448 156 L 452 154 L 456 151 L 460 147 L 464 144 L 468 140 L 472 136 L 476 130 L 480 128 L 484 127 L 488 127 L 492 125 L 496 127 L 500 122 L 504 118 L 508 117 L 512 120 L 516 121 L 520 124 L 524 126 L 528 130 L 532 133 L 536 134 L 540 138 L 544 144 L 548 145 L 552 145 L 556 144 L 560 143 L 564 140 L 568 138 L 600 138 L 600 260 Z" fill="#fffbe8" opacity="0.0" />
+  </g>
+
+  
+  <g id="mountain_lines" stroke="#35332b" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+  <g id="lines_left_crag">
+    <path d="M 1.0 128.0 L 3.0 126.0 L 5.0 126.0" />
+    <path d="M 0.0 197.0 L 1.0 195.0" />
+    <path d="M 0.0 207.0 L 2.0 200.0 L 5.0 195.0 L 5.0 193.0" />
+    <path d="M 0.0 216.0 L 4.0 210.0 L 4.0 205.0 L 8.0 199.0" />
+    <path d="M 0.0 226.0 L 8.0 213.0 L 8.0 204.0 L 9.0 203.0 L 9.0 200.0" />
+    <path d="M 0.0 238.0 L 3.0 234.0 L 3.0 232.0 L 5.0 229.0" />
+    <path d="M 24.0 238.0 L 27.0 232.0" />
+    <path d="M 31.0 238.0 L 32.0 232.0 L 35.0 227.0" />
+    <path d="M 4.0 239.0 L 6.0 237.0" />
+    <path d="M 12.0 239.0 L 27.0 223.0 L 29.0 219.0 L 32.0 216.0 L 35.0 215.0" />
+    <path d="M 28.0 239.0 L 29.0 232.0" />
+    <path d="M 45.0 239.0 L 45.0 232.0 L 43.0 229.0 L 43.0 227.0" />
+    <path d="M 62.0 239.0 L 55.0 232.0 L 49.0 230.0 L 47.0 228.0" />
+    <path d="M 74.0 239.0 L 69.0 233.0" />
+    <path d="M 88.0 239.0 L 82.0 235.0 L 76.0 234.0 L 71.0 231.0" />
+    <path d="M 99.0 239.0 L 86.0 232.0 L 79.0 231.0 L 76.0 229.0 L 73.0 229.0 L 72.0 230.0" />
+    <path d="M 114.0 239.0 L 103.0 232.0 L 91.0 223.0 L 77.0 210.0 L 72.0 208.0 L 70.0 206.0 L 65.0 206.0 L 64.0 205.0 L 62.0 206.0 L 52.0 206.0 L 46.0 201.0 L 44.0 201.0" />
+    <path d="M 115.0 96.0 L 119.0 97.0 L 124.0 102.0 L 132.0 121.0 L 138.0 128.0" />
+    <path d="M 114.0 97.0 L 108.0 104.0 L 83.0 123.0 L 77.0 129.0 L 75.0 129.0 L 72.0 131.0 L 67.0 137.0" />
+    <path d="M 155.0 117.0 L 152.0 118.0 L 149.0 121.0" />
+    <path d="M 156.0 119.0 L 154.0 123.0 L 153.0 130.0" />
+    <path d="M 158.0 119.0 L 158.0 122.0 L 154.0 132.0" />
+    <path d="M 160.0 119.0 L 164.0 122.0" />
+    <path d="M 146.0 122.0 L 141.0 127.0 L 139.0 127.0" />
+    <path d="M 165.0 122.0 L 167.0 123.0" />
+    <path d="M 164.0 123.0 L 158.0 136.0 L 151.0 144.0 L 148.0 154.0" />
+    <path d="M 168.0 123.0 L 171.0 125.0" />
+    <path d="M 148.0 124.0 L 144.0 134.0 L 132.0 151.0 L 127.0 156.0 L 123.0 164.0 L 120.0 173.0 L 120.0 178.0 L 116.0 187.0" />
+    <path d="M 167.0 124.0 L 160.0 141.0 L 156.0 147.0 L 151.0 152.0 L 149.0 156.0" />
+    <path d="M 8.0 126.0 L 17.0 130.0" />
+    <path d="M 6.0 127.0 L 6.0 128.0 L 14.0 136.0 L 16.0 140.0" />
+    <path d="M 171.0 127.0 L 172.0 133.0" />
+    <path d="M 138.0 129.0 L 137.0 132.0 L 137.0 139.0 L 130.0 146.0 L 126.0 153.0 L 121.0 157.0 L 120.0 160.0" />
+    <path d="M 20.0 130.0 L 23.0 130.0 L 24.0 131.0" />
+    <path d="M 42.0 130.0 L 45.0 130.0" />
+    <path d="M 48.0 130.0 L 51.0 132.0" />
+    <path d="M 18.0 131.0 L 19.0 133.0 L 19.0 139.0" />
+    <path d="M 25.0 131.0 L 30.0 131.0 L 31.0 132.0" />
+    <path d="M 46.0 131.0 L 44.0 136.0 L 44.0 141.0 L 49.0 149.0 L 49.0 158.0" />
+    <path d="M 24.0 132.0 L 23.0 137.0" />
+    <path d="M 32.0 132.0 L 35.0 132.0" />
+    <path d="M 52.0 132.0 L 58.0 137.0" />
+    <path d="M 31.0 133.0 L 25.0 139.0" />
+    <path d="M 51.0 133.0 L 51.0 145.0 L 54.0 151.0 L 54.0 156.0" />
+    <path d="M 37.0 135.0 L 40.0 141.0 L 43.0 152.0" />
+    <path d="M 171.0 135.0 L 164.0 143.0 L 160.0 151.0 L 153.0 160.0 L 147.0 172.0" />
+    <path d="M 174.0 135.0 L 177.0 137.0 L 177.0 139.0" />
+    <path d="M 35.0 136.0 L 33.0 139.0 L 33.0 144.0" />
+    <path d="M 151.0 137.0 L 150.0 139.0" />
+    <path d="M 59.0 138.0 L 61.0 138.0" />
+    <path d="M 67.0 138.0 L 67.0 143.0 L 66.0 144.0 L 65.0 152.0 L 63.0 154.0 L 62.0 159.0 L 58.0 161.0" />
+    <path d="M 57.0 139.0 L 57.0 149.0 L 56.0 150.0 L 56.0 156.0 L 55.0 157.0" />
+    <path d="M 62.0 139.0 L 62.0 148.0 L 57.0 159.0" />
+    <path d="M 146.0 140.0 L 135.0 154.0 L 124.0 173.0 L 123.0 179.0 L 119.0 189.0 L 119.0 204.0" />
+    <path d="M 149.0 140.0 L 146.0 145.0 L 144.0 155.0 L 141.0 161.0 L 133.0 171.0 L 127.0 183.0 L 126.0 193.0 L 125.0 194.0" />
+    <path d="M 176.0 141.0 L 170.0 152.0 L 155.0 166.0 L 152.0 171.0 L 148.0 175.0" />
+    <path d="M 16.0 142.0 L 13.0 145.0 L 9.0 147.0 L 2.0 155.0" />
+    <path d="M 25.0 142.0 L 28.0 143.0 L 30.0 145.0 L 32.0 145.0" />
+    <path d="M 34.0 147.0 L 42.0 153.0" />
+    <path d="M 179.0 150.0 L 175.0 154.0 L 172.0 159.0" />
+    <path d="M 180.0 152.0 L 180.0 156.0 L 179.0 158.0 L 176.0 160.0 L 173.0 160.0" />
+    <path d="M 44.0 155.0 L 48.0 159.0" />
+    <path d="M 2.0 156.0 L 3.0 160.0 L 5.0 163.0" />
+    <path d="M 49.0 159.0 L 51.0 161.0" />
+    <path d="M 146.0 160.0 L 146.0 163.0" />
+    <path d="M 114.0 162.0 L 116.0 162.0" />
+    <path d="M 120.0 163.0 L 119.0 165.0" />
+    <path d="M 167.0 163.0 L 149.0 181.0 L 149.0 183.0" />
+    <path d="M 170.0 163.0 L 169.0 166.0 L 150.0 184.0" />
+    <path d="M 7.0 164.0 L 11.0 167.0" />
+    <path d="M 56.0 164.0 L 57.0 165.0 L 61.0 165.0 L 74.0 178.0 L 78.0 180.0" />
+    <path d="M 111.0 164.0 L 101.0 169.0 L 98.0 173.0 L 92.0 178.0 L 86.0 179.0 L 85.0 180.0 L 80.0 180.0" />
+    <path d="M 5.0 165.0 L 4.0 166.0 L 4.0 171.0 L 3.0 172.0 L 3.0 180.0 L 0.0 189.0 L 0.0 194.0" />
+    <path d="M 116.0 165.0 L 115.0 168.0" />
+    <path d="M 144.0 165.0 L 141.0 171.0" />
+    <path d="M 146.0 165.0 L 145.0 172.0" />
+    <path d="M 119.0 166.0 L 115.0 186.0" />
+    <path d="M 11.0 169.0 L 11.0 172.0" />
+    <path d="M 13.0 172.0 L 12.0 174.0" />
+    <path d="M 15.0 172.0 L 17.0 175.0" />
+    <path d="M 114.0 172.0 L 109.0 178.0 L 105.0 180.0 L 100.0 185.0 L 96.0 192.0" />
+    <path d="M 107.0 173.0 L 88.0 188.0" />
+    <path d="M 138.0 173.0 L 133.0 179.0 L 129.0 193.0 L 127.0 196.0" />
+    <path d="M 10.0 174.0 L 8.0 179.0 L 7.0 186.0" />
+    <path d="M 141.0 174.0 L 140.0 176.0" />
+    <path d="M 145.0 174.0 L 145.0 176.0" />
+    <path d="M 12.0 175.0 L 12.0 178.0 L 8.0 187.0" />
+    <path d="M 148.0 176.0 L 146.0 177.0" />
+    <path d="M 16.0 177.0 L 15.0 184.0 L 9.0 196.0 L 9.0 198.0" />
+    <path d="M 19.0 177.0 L 20.0 180.0" />
+    <path d="M 138.0 178.0 L 136.0 181.0 L 136.0 185.0 L 132.0 197.0 L 132.0 200.0 L 130.0 205.0 L 130.0 209.0 L 129.0 210.0" />
+    <path d="M 145.0 179.0 L 145.0 183.0" />
+    <path d="M 21.0 181.0 L 28.0 191.0" />
+    <path d="M 141.0 181.0 L 139.0 185.0 L 139.0 193.0 L 138.0 194.0 L 138.0 204.0 L 139.0 205.0 L 139.0 212.0 L 140.0 214.0" />
+    <path d="M 143.0 181.0 L 144.0 184.0" />
+    <path d="M 19.0 182.0 L 16.0 191.0 L 16.0 194.0 L 13.0 201.0 L 12.0 211.0 L 9.0 220.0" />
+    <path d="M 79.0 182.0 L 87.0 188.0" />
+    <path d="M 149.0 184.0 L 146.0 185.0" />
+    <path d="M 144.0 186.0 L 144.0 196.0 L 143.0 197.0 L 145.0 200.0" />
+    <path d="M 89.0 189.0 L 95.0 193.0" />
+    <path d="M 115.0 189.0 L 116.0 203.0" />
+    <path d="M 30.0 192.0 L 34.0 194.0" />
+    <path d="M 27.0 193.0 L 25.0 198.0 L 23.0 200.0 L 19.0 208.0 L 14.0 214.0 L 10.0 222.0" />
+    <path d="M 96.0 193.0 L 99.0 196.0 L 115.0 204.0" />
+    <path d="M 36.0 195.0 L 39.0 197.0" />
+    <path d="M 33.0 196.0 L 31.0 202.0 L 29.0 204.0 L 27.0 209.0 L 13.0 227.0 L 10.0 233.0" />
+    <path d="M 40.0 198.0 L 43.0 200.0" />
+    <path d="M 38.0 199.0 L 35.0 205.0 L 35.0 207.0 L 29.0 216.0 L 11.0 234.0" />
+    <path d="M 125.0 200.0 L 123.0 206.0" />
+    <path d="M 146.0 200.0 L 149.0 200.0" />
+    <path d="M 145.0 201.0 L 145.0 217.0" />
+    <path d="M 150.0 201.0 L 151.0 209.0 L 155.0 215.0 L 157.0 223.0" />
+    <path d="M 152.0 201.0 L 154.0 202.0" />
+    <path d="M 43.0 202.0 L 41.0 208.0 L 36.0 214.0" />
+    <path d="M 155.0 202.0 L 158.0 204.0" />
+    <path d="M 154.0 203.0 L 156.0 211.0 L 158.0 214.0 L 166.0 222.0 L 169.0 223.0 L 173.0 227.0" />
+    <path d="M 116.0 204.0 L 118.0 205.0" />
+    <path d="M 159.0 204.0 L 161.0 204.0 L 163.0 206.0 L 168.0 208.0 L 181.0 217.0 L 190.0 221.0 L 193.0 224.0" />
+    <path d="M 119.0 205.0 L 122.0 207.0" />
+    <path d="M 158.0 205.0 L 159.0 208.0 L 163.0 212.0 L 174.0 216.0 L 186.0 225.0" />
+    <path d="M 123.0 207.0 L 125.0 209.0 L 128.0 210.0" />
+    <path d="M 130.0 211.0 L 137.0 215.0 L 139.0 215.0" />
+    <path d="M 36.0 217.0 L 36.0 220.0" />
+    <path d="M 141.0 217.0 L 144.0 218.0" />
+    <path d="M 147.0 218.0 L 149.0 218.0 L 156.0 224.0" />
+    <path d="M 33.0 222.0 L 32.0 224.0" />
+    <path d="M 31.0 225.0 L 29.0 228.0" />
+    <path d="M 32.0 226.0 L 30.0 229.0" />
+    <path d="M 37.0 226.0 L 42.0 226.0" />
+    <path d="M 49.0 227.0 L 55.0 228.0 L 64.0 232.0 L 68.0 232.0" />
+    <path d="M 159.0 227.0 L 163.0 230.0 L 165.0 230.0" />
+    <path d="M 175.0 228.0 L 178.0 228.0" />
+    <path d="M 169.0 229.0 L 172.0 229.0" />
+    <path d="M 166.0 231.0 L 169.0 234.0 L 171.0 234.0" />
+    <path d="M 178.0 231.0 L 180.0 231.0" />
+    <path d="M 175.0 232.0 L 177.0 232.0" />
+  </g>
+
+  <g id="lines_left_saddle">
+    <path d="M 191.0 238.0 L 194.0 234.0 L 199.0 223.0" />
+    <path d="M 206.0 238.0 L 219.0 230.0 L 223.0 230.0 L 237.0 224.0" />
+    <path d="M 196.0 239.0 L 198.0 238.0" />
+    <path d="M 209.0 239.0 L 217.0 235.0 L 224.0 236.0 L 229.0 233.0 L 238.0 230.0 L 242.0 230.0 L 243.0 229.0" />
+    <path d="M 173.0 126.0 L 182.0 135.0 L 199.0 155.0" />
+    <path d="M 179.0 141.0 L 182.0 146.0 L 181.0 148.0" />
+    <path d="M 232.0 142.0 L 232.0 144.0" />
+    <path d="M 221.0 144.0 L 218.0 147.0" />
+    <path d="M 225.0 145.0 L 219.0 153.0 L 213.0 159.0 L 205.0 165.0" />
+    <path d="M 227.0 146.0 L 221.0 154.0 L 220.0 157.0 L 216.0 161.0 L 213.0 162.0 L 206.0 168.0" />
+    <path d="M 228.0 149.0 L 222.0 160.0 L 222.0 162.0 L 220.0 164.0 L 220.0 168.0 L 215.0 174.0" />
+    <path d="M 211.0 150.0 L 208.0 152.0 L 205.0 152.0 L 200.0 155.0" />
+    <path d="M 216.0 150.0 L 210.0 155.0 L 204.0 157.0 L 202.0 159.0" />
+    <path d="M 229.0 150.0 L 230.0 153.0" />
+    <path d="M 229.0 155.0 L 224.0 162.0 L 224.0 165.0 L 229.0 172.0" />
+    <path d="M 199.0 156.0 L 201.0 159.0" />
+    <path d="M 232.0 156.0 L 231.0 158.0" />
+    <path d="M 230.0 157.0 L 228.0 160.0 L 228.0 165.0 L 230.0 171.0" />
+    <path d="M 232.0 159.0 L 235.0 163.0 L 235.0 165.0" />
+    <path d="M 201.0 160.0 L 202.0 163.0 L 204.0 165.0" />
+    <path d="M 234.0 167.0 L 232.0 184.0" />
+    <path d="M 237.0 167.0 L 238.0 174.0" />
+    <path d="M 206.0 169.0 L 210.0 174.0" />
+    <path d="M 229.0 173.0 L 229.0 182.0" />
+    <path d="M 212.0 175.0 L 214.0 175.0" />
+    <path d="M 215.0 175.0 L 225.0 183.0 L 228.0 183.0" />
+    <path d="M 211.0 176.0 L 211.0 178.0 L 213.0 181.0 L 217.0 185.0 L 222.0 188.0 L 234.0 201.0 L 249.0 208.0 L 251.0 208.0 L 256.0 211.0" />
+    <path d="M 236.0 176.0 L 234.0 185.0" />
+    <path d="M 238.0 179.0 L 238.0 181.0 L 240.0 184.0 L 240.0 189.0" />
+    <path d="M 229.0 183.0 L 231.0 185.0" />
+    <path d="M 234.0 186.0 L 239.0 190.0" />
+    <path d="M 225.0 213.0 L 228.0 213.0" />
+    <path d="M 231.0 213.0 L 240.0 216.0 L 245.0 216.0" />
+    <path d="M 220.0 215.0 L 222.0 215.0" />
+    <path d="M 217.0 216.0 L 219.0 216.0" />
+    <path d="M 214.0 217.0 L 216.0 217.0" />
+    <path d="M 228.0 217.0 L 223.0 222.0 L 217.0 225.0 L 210.0 232.0 L 209.0 232.0" />
+    <path d="M 231.0 217.0 L 234.0 219.0 L 237.0 223.0" />
+    <path d="M 210.0 218.0 L 212.0 218.0" />
+    <path d="M 206.0 219.0 L 209.0 219.0" />
+    <path d="M 212.0 220.0 L 209.0 224.0 L 211.0 228.0 L 208.0 230.0" />
+    <path d="M 200.0 221.0 L 202.0 221.0" />
+    <path d="M 205.0 222.0 L 202.0 231.0" />
+    <path d="M 183.0 226.0 L 185.0 226.0" />
+    <path d="M 179.0 227.0 L 182.0 227.0" />
+    <path d="M 193.0 227.0 L 192.0 229.0 L 183.0 234.0 L 178.0 238.0 L 176.0 238.0 L 172.0 235.0" />
+    <path d="M 181.0 230.0 L 184.0 230.0" />
+    <path d="M 202.0 233.0 L 200.0 236.0" />
+    <path d="M 208.0 233.0 L 205.0 235.0" />
+  </g>
+
+  <g id="lines_center_sun">
+    <path d="M 233.0 139.0 L 237.0 141.0 L 237.0 144.0 L 240.0 151.0 L 245.0 156.0 L 247.0 157.0 L 250.0 157.0 L 251.0 156.0 L 260.0 164.0 L 266.0 162.0 L 269.0 162.0 L 274.0 167.0 L 286.0 174.0 L 292.0 176.0 L 295.0 176.0 L 310.0 170.0 L 314.0 170.0" />
+    <path d="M 337.0 149.0 L 331.0 154.0 L 330.0 157.0" />
+    <path d="M 340.0 153.0 L 335.0 168.0 L 331.0 175.0 L 328.0 178.0" />
+    <path d="M 328.0 159.0 L 324.0 164.0" />
+    <path d="M 330.0 159.0 L 328.0 171.0 L 321.0 181.0" />
+    <path d="M 320.0 167.0 L 316.0 170.0" />
+    <path d="M 323.0 168.0 L 321.0 174.0 L 310.0 185.0" />
+    <path d="M 337.0 172.0 L 336.0 174.0" />
+    <path d="M 338.0 173.0 L 337.0 175.0" />
+    <path d="M 307.0 177.0 L 305.0 179.0" />
+    <path d="M 312.0 177.0 L 309.0 183.0" />
+    <path d="M 240.0 179.0 L 244.0 183.0 L 248.0 195.0 L 248.0 196.0 L 246.0 197.0 L 240.0 191.0" />
+    <path d="M 334.0 180.0 L 336.0 180.0" />
+    <path d="M 373.0 180.0 L 356.0 193.0 L 344.0 204.0 L 333.0 210.0 L 331.0 212.0 L 317.0 219.0 L 315.0 221.0 L 310.0 223.0 L 303.0 228.0" />
+    <path d="M 302.0 181.0 L 287.0 199.0" />
+    <path d="M 339.0 181.0 L 327.0 190.0" />
+    <path d="M 304.0 182.0 L 295.0 194.0 L 293.0 199.0" />
+    <path d="M 322.0 182.0 L 325.0 182.0" />
+    <path d="M 316.0 183.0 L 319.0 183.0" />
+    <path d="M 321.0 183.0 L 315.0 191.0 L 306.0 200.0 L 300.0 204.0" />
+    <path d="M 315.0 184.0 L 315.0 185.0 L 308.0 191.0" />
+    <path d="M 341.0 184.0 L 335.0 189.0 L 328.0 192.0" />
+    <path d="M 308.0 185.0 L 299.0 194.0 L 298.0 197.0" />
+    <path d="M 343.0 185.0 L 343.0 186.0 L 336.0 193.0 L 333.0 195.0 L 329.0 196.0 L 317.0 207.0" />
+    <path d="M 309.0 186.0 L 307.0 190.0" />
+    <path d="M 325.0 194.0 L 321.0 196.0" />
+    <path d="M 302.0 195.0 L 304.0 195.0" />
+    <path d="M 301.0 196.0 L 299.0 198.0" />
+    <path d="M 304.0 197.0 L 299.0 203.0" />
+    <path d="M 298.0 198.0 L 294.0 200.0" />
+    <path d="M 317.0 199.0 L 315.0 200.0" />
+    <path d="M 293.0 200.0 L 292.0 201.0 L 288.0 201.0" />
+    <path d="M 314.0 201.0 L 312.0 202.0" />
+    <path d="M 351.0 203.0 L 325.0 220.0 L 321.0 221.0 L 316.0 224.0" />
+    <path d="M 279.0 204.0 L 282.0 204.0" />
+    <path d="M 276.0 205.0 L 278.0 205.0" />
+    <path d="M 307.0 205.0 L 297.0 210.0" />
+    <path d="M 273.0 206.0 L 275.0 206.0" />
+    <path d="M 270.0 207.0 L 272.0 207.0" />
+    <path d="M 266.0 208.0 L 269.0 208.0" />
+    <path d="M 263.0 209.0 L 265.0 209.0" />
+    <path d="M 313.0 209.0 L 315.0 209.0" />
+    <path d="M 349.0 209.0 L 338.0 216.0 L 333.0 218.0 L 331.0 220.0 L 323.0 224.0 L 317.0 225.0" />
+    <path d="M 354.0 209.0 L 342.0 218.0 L 331.0 224.0 L 329.0 226.0 L 313.0 233.0" />
+    <path d="M 260.0 210.0 L 262.0 210.0" />
+    <path d="M 257.0 211.0 L 259.0 211.0" />
+    <path d="M 315.0 211.0 L 291.0 225.0" />
+    <path d="M 306.0 212.0 L 308.0 212.0" />
+    <path d="M 251.0 213.0 L 253.0 213.0" />
+    <path d="M 284.0 215.0 L 286.0 215.0" />
+    <path d="M 299.0 216.0 L 285.0 224.0" />
+    <path d="M 279.0 217.0 L 281.0 217.0" />
+    <path d="M 247.0 218.0 L 253.0 220.0 L 256.0 220.0 L 260.0 222.0 L 264.0 222.0" />
+    <path d="M 275.0 218.0 L 278.0 218.0" />
+    <path d="M 271.0 219.0 L 274.0 219.0" />
+    <path d="M 267.0 220.0 L 270.0 220.0" />
+    <path d="M 265.0 223.0 L 271.0 225.0 L 284.0 225.0" />
+    <path d="M 347.0 223.0 L 340.0 227.0 L 338.0 227.0 L 320.0 235.0" />
+    <path d="M 238.0 224.0 L 244.0 228.0" />
+    <path d="M 285.0 225.0 L 286.0 226.0 L 290.0 226.0" />
+    <path d="M 291.0 226.0 L 294.0 228.0 L 298.0 227.0" />
+    <path d="M 311.0 226.0 L 306.0 229.0" />
+    <path d="M 299.0 227.0 L 302.0 228.0" />
+    <path d="M 314.0 227.0 L 309.0 231.0" />
+    <path d="M 303.0 229.0 L 305.0 230.0" />
+    <path d="M 306.0 230.0 L 308.0 231.0" />
+    <path d="M 309.0 232.0 L 312.0 233.0" />
+    <path d="M 313.0 234.0 L 316.0 236.0 L 318.0 236.0" />
+  </g>
+
+  <g id="lines_right_saddle">
+    <path d="M 390.0 239.0 L 393.0 238.0 L 396.0 235.0 L 415.0 222.0 L 418.0 221.0 L 430.0 213.0 L 435.0 211.0 L 437.0 209.0 L 444.0 206.0 L 454.0 198.0 L 457.0 197.0 L 475.0 184.0" />
+    <path d="M 410.0 140.0 L 414.0 140.0 L 431.0 156.0 L 435.0 162.0" />
+    <path d="M 404.0 142.0 L 406.0 142.0" />
+    <path d="M 406.0 144.0 L 403.0 148.0" />
+    <path d="M 398.0 146.0 L 400.0 146.0" />
+    <path d="M 340.0 147.0 L 346.0 148.0 L 347.0 149.0 L 351.0 149.0 L 352.0 150.0 L 360.0 150.0 L 371.0 158.0" />
+    <path d="M 397.0 147.0 L 393.0 150.0" />
+    <path d="M 339.0 149.0 L 341.0 151.0" />
+    <path d="M 400.0 149.0 L 397.0 160.0 L 387.0 170.0" />
+    <path d="M 403.0 149.0 L 401.0 161.0 L 393.0 171.0 L 388.0 172.0" />
+    <path d="M 390.0 150.0 L 392.0 150.0" />
+    <path d="M 393.0 151.0 L 386.0 159.0 L 384.0 163.0 L 378.0 169.0 L 372.0 172.0 L 350.0 193.0 L 334.0 203.0 L 329.0 208.0 L 314.0 218.0 L 299.0 226.0" />
+    <path d="M 343.0 153.0 L 343.0 155.0" />
+    <path d="M 383.0 153.0 L 385.0 153.0" />
+    <path d="M 455.0 154.0 L 442.0 165.0 L 439.0 166.0 L 432.0 171.0 L 418.0 178.0 L 416.0 178.0 L 413.0 180.0 L 411.0 180.0 L 395.0 187.0 L 386.0 194.0 L 370.0 204.0 L 356.0 217.0" />
+    <path d="M 378.0 155.0 L 380.0 155.0" />
+    <path d="M 345.0 156.0 L 348.0 158.0" />
+    <path d="M 375.0 156.0 L 377.0 156.0" />
+    <path d="M 343.0 157.0 L 338.0 171.0" />
+    <path d="M 381.0 157.0 L 377.0 163.0 L 364.0 175.0 L 347.0 187.0 L 333.0 200.0 L 329.0 202.0 L 323.0 207.0 L 318.0 209.0" />
+    <path d="M 370.0 160.0 L 363.0 168.0 L 350.0 176.0" />
+    <path d="M 346.0 161.0 L 345.0 163.0" />
+    <path d="M 349.0 161.0 L 346.0 164.0" />
+    <path d="M 344.0 164.0 L 339.0 172.0" />
+    <path d="M 346.0 165.0 L 340.0 177.0" />
+    <path d="M 432.0 166.0 L 411.0 177.0 L 409.0 177.0 L 397.0 183.0 L 395.0 183.0 L 392.0 185.0 L 390.0 185.0 L 387.0 187.0 L 375.0 191.0 L 363.0 201.0" />
+    <path d="M 382.0 175.0 L 380.0 177.0" />
+    <path d="M 342.0 178.0 L 345.0 178.0" />
+    <path d="M 437.0 178.0 L 430.0 183.0 L 426.0 184.0 L 423.0 186.0 L 413.0 187.0 L 409.0 189.0 L 391.0 203.0" />
+    <path d="M 377.0 180.0 L 362.0 198.0" />
+    <path d="M 439.0 180.0 L 434.0 185.0 L 423.0 190.0 L 407.0 202.0" />
+    <path d="M 427.0 197.0 L 429.0 197.0" />
+    <path d="M 424.0 198.0 L 426.0 198.0" />
+    <path d="M 421.0 199.0 L 423.0 199.0" />
+    <path d="M 418.0 200.0 L 420.0 200.0" />
+    <path d="M 414.0 201.0 L 417.0 201.0" />
+    <path d="M 410.0 202.0 L 413.0 202.0" />
+    <path d="M 458.0 202.0 L 453.0 205.0 L 448.0 210.0 L 442.0 218.0 L 430.0 230.0 L 430.0 231.0 L 427.0 233.0 L 427.0 234.0" />
+    <path d="M 395.0 204.0 L 404.0 204.0" />
+    <path d="M 392.0 205.0 L 394.0 205.0" />
+    <path d="M 352.0 207.0 L 354.0 207.0" />
+    <path d="M 385.0 207.0 L 365.0 216.0 L 357.0 218.0" />
+    <path d="M 389.0 207.0 L 387.0 208.0" />
+    <path d="M 386.0 209.0 L 372.0 219.0 L 361.0 225.0 L 359.0 225.0 L 353.0 228.0 L 339.0 231.0 L 327.0 237.0 L 325.0 239.0 L 323.0 239.0 L 319.0 236.0" />
+  </g>
+
+  <g id="lines_right_summit">
+    <path d="M 568.0 138.0 L 562.0 140.0 L 557.0 144.0 L 549.0 145.0" />
+    <path d="M 568.0 157.0 L 550.0 174.0 L 550.0 177.0 L 551.0 178.0 L 551.0 183.0 L 549.0 187.0 L 549.0 193.0 L 550.0 194.0" />
+    <path d="M 568.0 218.0 L 552.0 233.0" />
+    <path d="M 472.0 238.0 L 477.0 223.0 L 479.0 221.0 L 482.0 220.0 L 487.0 214.0 L 505.0 205.0 L 507.0 205.0 L 521.0 197.0" />
+    <path d="M 489.0 238.0 L 512.0 223.0 L 514.0 223.0 L 525.0 218.0 L 528.0 218.0" />
+    <path d="M 498.0 238.0 L 502.0 236.0 L 506.0 236.0 L 507.0 235.0 L 513.0 234.0 L 519.0 230.0 L 525.0 228.0" />
+    <path d="M 522.0 238.0 L 526.0 229.0" />
+    <path d="M 553.0 238.0 L 551.0 234.0" />
+    <path d="M 431.0 239.0 L 448.0 227.0 L 467.0 222.0 L 478.0 216.0 L 483.0 212.0 L 491.0 208.0 L 493.0 208.0 L 521.0 193.0" />
+    <path d="M 483.0 239.0 L 489.0 232.0" />
+    <path d="M 505.0 117.0 L 508.0 117.0 L 509.0 119.0" />
+    <path d="M 504.0 118.0 L 498.0 124.0" />
+    <path d="M 512.0 120.0 L 516.0 121.0 L 521.0 124.0 L 531.0 133.0 L 535.0 133.0 L 540.0 138.0 L 542.0 143.0" />
+    <path d="M 508.0 121.0 L 506.0 131.0 L 493.0 144.0 L 487.0 146.0 L 474.0 156.0 L 467.0 159.0 L 458.0 167.0" />
+    <path d="M 511.0 121.0 L 511.0 124.0 L 518.0 131.0 L 518.0 144.0 L 519.0 145.0 L 519.0 150.0 L 520.0 151.0 L 524.0 152.0 L 531.0 148.0 L 533.0 148.0 L 542.0 144.0" />
+    <path d="M 494.0 124.0 L 496.0 124.0" />
+    <path d="M 489.0 126.0 L 491.0 126.0" />
+    <path d="M 497.0 126.0 L 483.0 139.0 L 482.0 139.0 L 466.0 156.0 L 465.0 156.0 L 441.0 178.0" />
+    <path d="M 484.0 127.0 L 488.0 127.0" />
+    <path d="M 479.0 128.0 L 481.0 128.0" />
+    <path d="M 478.0 129.0 L 469.0 140.0" />
+    <path d="M 482.0 129.0 L 471.0 142.0" />
+    <path d="M 464.0 143.0 L 460.0 148.0" />
+    <path d="M 543.0 144.0 L 547.0 144.0 L 548.0 145.0" />
+    <path d="M 548.0 146.0 L 538.0 153.0 L 528.0 162.0 L 516.0 170.0" />
+    <path d="M 463.0 148.0 L 461.0 149.0" />
+    <path d="M 457.0 149.0 L 459.0 149.0" />
+    <path d="M 465.0 149.0 L 439.0 176.0" />
+    <path d="M 456.0 150.0 L 455.0 152.0" />
+    <path d="M 460.0 150.0 L 456.0 153.0" />
+    <path d="M 452.0 153.0 L 454.0 153.0" />
+    <path d="M 451.0 154.0 L 438.0 163.0 L 436.0 163.0" />
+    <path d="M 476.0 161.0 L 478.0 161.0" />
+    <path d="M 481.0 161.0 L 483.0 161.0" />
+    <path d="M 486.0 161.0 L 489.0 162.0 L 488.0 164.0 L 476.0 179.0" />
+    <path d="M 479.0 162.0 L 453.0 186.0" />
+    <path d="M 484.0 162.0 L 476.0 170.0 L 475.0 173.0 L 470.0 179.0" />
+    <path d="M 469.0 165.0 L 466.0 167.0 L 459.0 169.0" />
+    <path d="M 513.0 170.0 L 515.0 170.0" />
+    <path d="M 509.0 171.0 L 512.0 171.0" />
+    <path d="M 516.0 171.0 L 513.0 175.0 L 508.0 179.0" />
+    <path d="M 453.0 172.0 L 434.0 193.0" />
+    <path d="M 505.0 172.0 L 508.0 172.0" />
+    <path d="M 500.0 173.0 L 504.0 173.0" />
+    <path d="M 495.0 174.0 L 499.0 174.0" />
+    <path d="M 491.0 175.0 L 494.0 175.0" />
+    <path d="M 488.0 176.0 L 490.0 176.0" />
+    <path d="M 483.0 179.0 L 476.0 183.0" />
+    <path d="M 476.0 180.0 L 475.0 182.0" />
+    <path d="M 519.0 180.0 L 522.0 180.0 L 523.0 181.0" />
+    <path d="M 469.0 181.0 L 464.0 184.0 L 454.0 187.0" />
+    <path d="M 515.0 181.0 L 518.0 181.0" />
+    <path d="M 509.0 182.0 L 510.0 183.0 L 511.0 182.0 L 514.0 182.0" />
+    <path d="M 567.0 182.0 L 564.0 198.0 L 556.0 216.0 L 552.0 221.0" />
+    <path d="M 499.0 183.0 L 501.0 183.0" />
+    <path d="M 521.0 183.0 L 506.0 194.0 L 498.0 198.0 L 477.0 205.0 L 466.0 207.0 L 457.0 211.0 L 449.0 216.0 L 435.0 230.0 L 428.0 235.0" />
+    <path d="M 524.0 183.0 L 522.0 192.0" />
+    <path d="M 563.0 183.0 L 555.0 191.0 L 551.0 193.0" />
+    <path d="M 496.0 184.0 L 498.0 184.0" />
+    <path d="M 492.0 185.0 L 495.0 185.0" />
+    <path d="M 489.0 186.0 L 491.0 186.0" />
+    <path d="M 450.0 188.0 L 447.0 190.0 L 435.0 194.0" />
+    <path d="M 552.0 196.0 L 554.0 198.0 L 555.0 201.0 L 555.0 210.0 L 553.0 213.0 L 551.0 220.0" />
+    <path d="M 522.0 200.0 L 515.0 206.0 L 508.0 210.0 L 495.0 223.0 L 489.0 231.0" />
+    <path d="M 525.0 200.0 L 528.0 205.0 L 529.0 210.0" />
+    <path d="M 524.0 212.0 L 526.0 212.0" />
+    <path d="M 529.0 213.0 L 529.0 217.0" />
+    <path d="M 519.0 214.0 L 521.0 214.0" />
+    <path d="M 516.0 215.0 L 518.0 215.0" />
+    <path d="M 509.0 219.0 L 506.0 222.0 L 490.0 232.0" />
+    <path d="M 529.0 220.0 L 526.0 227.0" />
+    <path d="M 550.0 223.0 L 550.0 226.0 L 548.0 229.0 L 548.0 232.0 L 550.0 233.0" />
+  </g>
+  </g>
+</svg>
+      </div>
+
+      <div id="hud-panel">
+        <!-- Row 1: Telemetry, Loop Timer & Customization Controls -->
+        <div class="hud-row hud-row-primary">
+          <div class="hud-group-left">
+            <div class="hud-meta-inline">
+              <span class="subject-title">Mountain Sunrise</span>
+              <span class="badge">CUSTOM</span>
+              <span id="fps-badge">60 FPS</span>
+            </div>
+          </div>
+
+          <div class="hud-group-center">
+            <div class="hud-timer-badge" title="1x Loop Cycle Duration (Scales with speed)">
+              <span style="opacity: 0.75;">⏱ 1x Loop:</span>
+              <span id="loop-time-cur" style="color: var(--accent); font-weight: 700;">00.0s</span>
+              <span style="opacity: 0.35;">/</span>
+              <span id="loop-time-total" style="color: var(--text);">10.0s</span>
+            </div>
+          </div>
+
+          <div class="hud-group-right">
+            <div class="hud-motion-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Motion Style">🎬</span>
+              <select id="motion-select" class="hud-select" title="Switch Motion Style">
+                <option value="Zen Solar Radiance &amp; Ridge Parallax">Zen Solar Radiance &amp; Ridge Parallax</option>\n<option value="Solar Transit (Dusk Mountain Descent)">Solar Transit (Dusk Mountain Descent)</option>\n<option value="Chromatic Flare &amp; Shimmering Contours">Chromatic Flare &amp; Shimmering Contours</option>\n
+              </select>
+            </div>
+
+            <div class="hud-palette-group" style="display: flex; align-items: center; gap: 4px;">
+              <span style="font-size: 11px; opacity: 0.8;" title="Color Theme">🎨</span>
+              <select id="palette-select" class="hud-select" title="Switch Color Theme">
+                <option value="Minimalist Washi (Original)">Minimalist Washi (Original)</option>\n<option value="Sumi Ink Night (Midnight)">Sumi Ink Night (Midnight)</option>\n<option value="Kyoto Autumn Sunset">Kyoto Autumn Sunset</option>\n<option value="Bamboo Forest Dawn">Bamboo Forest Dawn</option>\n<option value="Nordic Alpine Sapphire">Nordic Alpine Sapphire</option>\n
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Playback Mechanics, Speed, Pan Framing & Actions -->
+        <div class="hud-row hud-row-secondary">
+          <div class="hud-group-left">
+            <button id="toggle-play-btn" class="hud-btn" title="Play / Pause Animation">⏸ Pause</button>
+            <div class="hud-slider-group" title="Playback Speed Multiplier">
+              <span>⚡</span>
+              <input type="range" id="speed-slider" class="hud-slider" min="0.25" max="2.5" step="0.05" value="1.0">
+              <span id="speed-val">1.0x</span>
+            </div>
+          </div>
+
+          <div class="hud-group-center">
+            <div id="hud-pan-group" class="hud-pan-group" title="Pan Framing Navigator">
+              <span id="pan-label">↔</span>
+              <div class="hud-pan-btn-group">
+                <button id="pan-btn-min" class="hud-mini-btn" title="Align Min (0%)">◀</button>
+                <input type="range" id="pan-slider" class="hud-slider" min="0" max="100" step="1" value="50">
+                <button id="pan-btn-mid" class="hud-mini-btn" title="Center (50%)">⯀</button>
+                <button id="pan-btn-max" class="hud-mini-btn" title="Align Max (100%)">▶</button>
+              </div>
+              <span id="pan-val">50%</span>
+            </div>
+          </div>
+
+          <div class="hud-group-right">
+            <button id="toggle-frame-btn" class="hud-btn" title="Toggle 16:9 Canvas / Contained">🔲 16:9</button>
+            <button id="export-svg-btn" class="hud-btn" title="Export Standalone Animated SVG">⬇ SVG</button>
+            <button id="export-mp4-btn" class="hud-btn" title="Export MP4 Video (Adobe Stock Ready)">🎥 MP4</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export MP4 Modal Dialog -->
+  <div id="export-modal-backdrop" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 18px;">🎥</span>
+          <div>
+            <div class="modal-title">Export MP4 Video</div>
+            <div class="modal-subtitle">Broadcast-Grade CFR 60 FPS • Adobe Stock Ready</div>
+          </div>
+        </div>
+        <button id="modal-close-btn" class="modal-close" title="Tutup">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-field">
+          <label class="modal-label">Resolusi Video</label>
+          <select id="modal-res-select" class="modal-select">
+            <option value="1920x1080" selected>1080p Full HD (1920 × 1080) — Standar Adobe Stock</option>
+            <option value="3840x2160">4K Ultra HD (3840 × 2160) — Premium Stock</option>
+            <option value="1280x720">720p HD (1280 × 720) — File Ringan</option>
+          </select>
+        </div>
+
+        <div class="modal-grid-2">
+          <div class="modal-field">
+            <label class="modal-label">Jumlah Loop (xLoop)</label>
+            <select id="modal-loops-select" class="modal-select">
+              <option value="1">1x Loop</option>
+              <option value="2" selected>2x Loops (Rekomendasi Stock: 15–30s)</option>
+              <option value="3">3x Loops</option>
+              <option value="5">5x Loops</option>
+            </select>
+          </div>
+
+          <div class="modal-field">
+            <label class="modal-label">Framing Visual (Pan)</label>
+            <select id="modal-pan-select" class="modal-select">
+              <option id="modal-pan-opt-current" value="current" selected>WYSIWYG: Ikuti Pan Layar (50%)</option>
+              <option value="center">Reset ke Tengah Sempurna (50%)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label">Kecepatan Render</label>
+          <div class="modal-radio-group">
+            <label class="modal-radio">
+              <input type="radio" name="modal-speed-mode" value="current" checked>
+              <span>Gunakan speed aktif (<span id="modal-speed-mode-display">1.0x</span>)</span>
+            </label>
+            <label class="modal-radio">
+              <input type="radio" name="modal-speed-mode" value="default">
+              <span>Reset ke kecepatan normal (1.0x)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-info-box">
+          <div class="info-row">
+            <span class="info-label">⏱ Total Durasi:</span>
+            <span id="modal-duration-display" class="info-val">20.0s</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">🎞 Total Frames:</span>
+            <span id="modal-frames-display" class="info-val">1200 frames @ 60 FPS</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">✨ Kualitas:</span>
+            <span class="info-val" style="color: #10b981;">Clean Canvas (Tanpa HUD) • Seamless Loop</span>
+          </div>
+        </div>
+
+        <div id="modal-progress-wrap" style="display: none; margin-top: 6px;">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+            <span id="modal-progress-status" style="color: var(--accent);">Rendering frames...</span>
+            <span id="modal-progress-pct" style="font-weight: 700; color: #fff;">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="modal-progress-bar" class="progress-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="modal-cancel-btn" class="modal-btn modal-btn-secondary">Batal</button>
+        <button id="modal-start-btn" class="modal-btn modal-btn-primary">Mulai Export MP4</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const stage = document.getElementById("svg-stage");
+    const panCanvas = document.getElementById("pan-canvas");
+    const svgElem = panCanvas.querySelector("svg");
+    const speedSlider = document.getElementById("speed-slider");
+    const speedVal = document.getElementById("speed-val");
+    const toggleFrameBtn = document.getElementById("toggle-frame-btn");
+    const togglePlayBtn = document.getElementById("toggle-play-btn");
+    const exportBtn = document.getElementById("export-svg-btn");
+    const fpsBadge = document.getElementById("fps-badge");
+
+    const panGroup = document.getElementById("hud-pan-group");
+    const panLabel = document.getElementById("pan-label");
+    const panSlider = document.getElementById("pan-slider");
+    const panVal = document.getElementById("pan-val");
+    const panBtnMin = document.getElementById("pan-btn-min");
+    const panBtnMid = document.getElementById("pan-btn-mid");
+    const panBtnMax = document.getElementById("pan-btn-max");
+
+    let is169Mode = true;
+    let panProgress = 0.5; // 0.0 to 1.0 (default 50% = centered)
+    let panAxis = "x";
+    let maxPanX = 0;
+    let maxPanY = 0;
+    let currentOffsetX = 0;
+    let currentOffsetY = 0;
+
+    function getSvgViewBoxDimensions() {
+      if (svgElem.viewBox && svgElem.viewBox.baseVal && svgElem.viewBox.baseVal.width > 0) {
+        return {
+          width: svgElem.viewBox.baseVal.width,
+          height: svgElem.viewBox.baseVal.height,
+        };
+      }
+      const vbAttr = svgElem.getAttribute("viewBox");
+      if (vbAttr) {
+        const parts = vbAttr.trim().split(/[\s,]+/).map(Number);
+        if (parts.length === 4 && parts[2] > 0 && parts[3] > 0) {
+          return { width: parts[2], height: parts[3] };
+        }
+      }
+      return {
+        width: svgElem.clientWidth || 1000,
+        height: svgElem.clientHeight || 562.5,
+      };
+    }
+
+    function applyPanOffset() {
+      if (!is169Mode) return;
+      currentOffsetX = -(panProgress * maxPanX);
+      currentOffsetY = -(panProgress * maxPanY);
+
+      panCanvas.style.transform = `translate3d(${currentOffsetX.toFixed(2)}px, ${currentOffsetY.toFixed(2)}px, 0)`;
+
+      const pct = Math.round(panProgress * 100);
+      panSlider.value = pct;
+      panVal.textContent = `${pct}%`;
+
+      panBtnMin.classList.toggle("active", pct <= 2);
+      panBtnMid.classList.toggle("active", pct >= 48 && pct <= 52);
+      panBtnMax.classList.toggle("active", pct >= 98);
+    }
+
+    function updateFramingAndPan() {
+      if (!is169Mode) {
+        stage.className = "mode-contained";
+        panGroup.classList.add("disabled");
+        toggleFrameBtn.textContent = "🖼 Contained";
+        svgElem.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        return;
+      }
+
+      stage.className = "mode-16-9";
+      panGroup.classList.remove("disabled");
+      toggleFrameBtn.textContent = "🔲 16:9 Canvas";
+      svgElem.setAttribute("preserveAspectRatio", "none");
+
+      const stageW = stage.clientWidth;
+      const stageH = stage.clientHeight;
+      if (!stageW || !stageH) return;
+
+      const vb = getSvgViewBoxDimensions();
+      const vbAspect = vb.width / vb.height;
+      const stageAspect = stageW / stageH;
+
+      let canvasW, canvasH;
+
+      if (vbAspect >= stageAspect) {
+        // SVG is wider than 16:9 (shortest side is height)
+        canvasH = stageH;
+        canvasW = stageH * vbAspect;
+        panAxis = "x";
+        maxPanX = Math.max(0, canvasW - stageW);
+        maxPanY = 0;
+
+        panLabel.innerHTML = "↔";
+        panLabel.title = "Pan X Axis (Horizontal)";
+        panBtnMin.innerHTML = "◀";
+        panBtnMin.title = "Align Left (0%)";
+        panBtnMax.innerHTML = "▶";
+        panBtnMax.title = "Align Right (100%)";
+      } else {
+        // SVG is taller than 16:9 (shortest side is width)
+        canvasW = stageW;
+        canvasH = stageW / vbAspect;
+        panAxis = "y";
+        maxPanX = 0;
+        maxPanY = Math.max(0, canvasH - stageH);
+
+        panLabel.innerHTML = "↕";
+        panLabel.title = "Pan Y Axis (Vertical)";
+        panBtnMin.innerHTML = "▲";
+        panBtnMin.title = "Align Top (0%)";
+        panBtnMax.innerHTML = "▼";
+        panBtnMax.title = "Align Bottom (100%)";
+      }
+
+      panCanvas.style.width = `${canvasW}px`;
+      panCanvas.style.height = `${canvasH}px`;
+
+      applyPanOffset();
+    }
+
+    panSlider.addEventListener("input", (e) => {
+      panProgress = Math.max(0, Math.min(1, parseFloat(e.target.value) / 100));
+      panCanvas.style.transition = "";
+      applyPanOffset();
+    });
+
+    function setPanSmooth(val) {
+      panProgress = val;
+      panCanvas.style.transition = "transform 0.25s ease-out";
+      applyPanOffset();
+      setTimeout(() => { panCanvas.style.transition = ""; }, 250);
+    }
+
+    panBtnMin.addEventListener("click", () => setPanSmooth(0.0));
+    panBtnMid.addEventListener("click", () => setPanSmooth(0.5));
+    panBtnMax.addEventListener("click", () => setPanSmooth(1.0));
+
+    // Pointer Drag-to-Pan on Stage
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let startOffsetX = 0;
+    let startOffsetY = 0;
+
+    stage.addEventListener("pointerdown", (e) => {
+      if (!is169Mode) return;
+      if (e.target.closest("#hud-panel")) return;
+
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startOffsetX = currentOffsetX;
+      startOffsetY = currentOffsetY;
+
+      stage.classList.add("is-dragging");
+      panCanvas.style.transition = "none";
+      stage.setPointerCapture(e.pointerId);
+    });
+
+    stage.addEventListener("pointermove", (e) => {
+      if (!isDragging || !is169Mode) return;
+
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (panAxis === "x" && maxPanX > 0) {
+        currentOffsetX = Math.max(-maxPanX, Math.min(0, startOffsetX + dx));
+        panProgress = -currentOffsetX / maxPanX;
+      } else if (panAxis === "y" && maxPanY > 0) {
+        currentOffsetY = Math.max(-maxPanY, Math.min(0, startOffsetY + dy));
+        panProgress = -currentOffsetY / maxPanY;
+      }
+
+      applyPanOffset();
+    });
+
+    function endDrag(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      stage.classList.remove("is-dragging");
+      try {
+        if (stage.hasPointerCapture(e.pointerId)) {
+          stage.releasePointerCapture(e.pointerId);
+        }
+      } catch (err) {}
+    }
+
+    stage.addEventListener("pointerup", endDrag);
+    stage.addEventListener("pointercancel", endDrag);
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (is169Mode) {
+        updateFramingAndPan();
+      }
+    });
+    resizeObserver.observe(stage);
+
+    toggleFrameBtn.addEventListener("click", () => {
+      is169Mode = !is169Mode;
+      updateFramingAndPan();
+    });
+
+    // Palette / Theme Switcher
+    const PALETTES = {"Minimalist Washi (Original)": {"sky": "#fffbe8", "sun": "#f8bc04", "mountain_lines": "#35332b"}, "Sumi Ink Night (Midnight)": {"sky": "#0f172a", "sun": "#e2e8f0", "mountain_lines": "#cbd5e1"}, "Kyoto Autumn Sunset": {"sky": "#fef3c7", "sun": "#e11d48", "mountain_lines": "#7c2d12"}, "Bamboo Forest Dawn": {"sky": "#f0fdf4", "sun": "#facc15", "mountain_lines": "#166534"}, "Nordic Alpine Sapphire": {"sky": "#f8fafc", "sun": "#0284c7", "mountain_lines": "#1e293b"}};
+    let currentThemeName = Object.keys(PALETTES)[0] || "";
+
+    function applyTheme(themeName) {
+      const theme = PALETTES[themeName];
+      if (!theme) return;
+      currentThemeName = themeName;
+      for (const [id, color] of Object.entries(theme)) {
+        const el = svgElem.querySelector("#" + CSS.escape(id));
+        if (el) {
+          el.style.transition = "fill 0.4s ease, stroke 0.4s ease";
+          if (el.getAttribute("stroke") && el.getAttribute("stroke") !== "none") {
+            el.setAttribute("stroke", color);
+            el.style.stroke = color;
+          } else {
+            el.setAttribute("fill", color);
+            el.style.fill = color;
+          }
+        }
+      }
+      applySpeed(currentSpeed);
+    }
+
+    const paletteSelect = document.getElementById("palette-select");
+    if (paletteSelect) {
+      paletteSelect.addEventListener("change", (e) => {
+        applyTheme(e.target.value);
+      });
+    }
+
+    // Real-time FPS Telemetry
+    let frameCount = 0;
+    let lastTime = performance.now();
+    function trackFps(now) {
+      frameCount++;
+      if (now - lastTime >= 1000) {
+        fpsBadge.textContent = `${frameCount} FPS`;
+        frameCount = 0;
+        lastTime = now;
+      }
+      requestAnimationFrame(trackFps);
+    }
+    requestAnimationFrame(trackFps);
+
+    // Speed Multiplier via Web Animations API (glitch-free continuous playbackRate)
+    let currentSpeed = 1.0;
+    function applySpeed(speed) {
+      currentSpeed = speed;
+      speedVal.textContent = `${speed.toFixed(1)}x`;
+      const anims = svgElem.getAnimations({ subtree: true });
+      anims.forEach(anim => {
+        anim.playbackRate = speed;
+      });
+    }
+
+    speedSlider.addEventListener("input", (e) => {
+      applySpeed(parseFloat(e.target.value));
+    });
+
+    // Play / Pause Toggle
+    let isPlaying = true;
+    togglePlayBtn.addEventListener("click", () => {
+      isPlaying = !isPlaying;
+      const anims = svgElem.getAnimations({ subtree: true });
+      if (anims.length > 0) {
+        anims.forEach(anim => {
+          if (isPlaying) {
+            anim.play();
+          } else {
+            anim.pause();
+          }
+        });
+      }
+      const state = isPlaying ? "running" : "paused";
+      svgElem.querySelectorAll("*").forEach(el => {
+        el.style.animationPlayState = state;
+      });
+      togglePlayBtn.textContent = isPlaying ? "⏸ Pause" : "▶ Play";
+    });
+
+    // Motion Style Switcher
+    const MOTION_STYLES = {"Zen Solar Radiance & Ridge Parallax": "/* Zen Sunrise: Solar Breathing & Subtle Atmospheric Mountain Parallax */\n@keyframes sun-zen-pulse {\n  0%, 100% {\n    transform: translateY(0px) scale(1.0);\n    filter: drop-shadow(0 0 6px rgba(248, 188, 4, 0.4));\n  }\n  50% {\n    transform: translateY(-6px) scale(1.04);\n    filter: drop-shadow(0 0 18px rgba(248, 188, 4, 0.75));\n  }\n}\n\n@keyframes left-crag-drift {\n  0%, 100% {\n    transform: translate(0px, 0px);\n  }\n  50% {\n    transform: translate(-3px, -1.5px);\n  }\n}\n\n@keyframes left-saddle-breathe {\n  0%, 100% {\n    transform: translate(0px, 0px);\n  }\n  50% {\n    transform: translate(3px, -2px);\n  }\n}\n\n@keyframes center-ridge-drift {\n  0%, 100% {\n    transform: translate(0px, 0px);\n  }\n  50% {\n    transform: translate(0px, -2.5px);\n  }\n}\n\n@keyframes right-saddle-sway {\n  0%, 100% {\n    transform: translate(0px, 0px);\n  }\n  50% {\n    transform: translate(-3.5px, -1.5px);\n  }\n}\n\n@keyframes right-summit-drift {\n  0%, 100% {\n    transform: translate(0px, 0px);\n  }\n  50% {\n    transform: translate(4px, -2px);\n  }\n}\n\n#sun {\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: sun-zen-pulse 10.0s ease-in-out infinite;\n}\n\n#lines_left_crag {\n  animation: left-crag-drift 10.0s ease-in-out infinite;\n}\n\n#lines_left_saddle {\n  animation: left-saddle-breathe 8.5s ease-in-out infinite;\n}\n\n#lines_center_sun {\n  animation: center-ridge-drift 7.5s ease-in-out infinite;\n}\n\n#lines_right_saddle {\n  animation: right-saddle-sway 9.0s ease-in-out infinite;\n}\n\n#lines_right_summit {\n  animation: right-summit-drift 10.0s ease-in-out infinite;\n}", "Solar Transit (Dusk Mountain Descent)": "/* Solar Transit: Sun Descends in an Arc Behind the Mountain Saddle */\n@keyframes sun-dusk-transit {\n  0% {\n    transform: translate(0px, 0px) scale(1.0);\n    opacity: 1.0;\n  }\n  30% {\n    transform: translate(-18px, 20px) scale(1.08);\n    opacity: 0.95;\n  }\n  50% {\n    transform: translate(-35px, 50px) scale(1.15);\n    opacity: 0.20;\n  }\n  55%, 70% {\n    transform: translate(-45px, 75px) scale(0.9);\n    opacity: 0.0;\n  }\n  85% {\n    transform: translate(15px, 25px) scale(0.95);\n    opacity: 0.65;\n  }\n  100% {\n    transform: translate(0px, 0px) scale(1.0);\n    opacity: 1.0;\n  }\n}\n\n@keyframes sky-dusk-shift {\n  0%, 100% {\n    filter: brightness(1.0) hue-rotate(0deg);\n  }\n  45% {\n    filter: brightness(0.88) hue-rotate(-20deg) saturate(1.3);\n  }\n  60% {\n    filter: brightness(0.72) hue-rotate(-45deg) saturate(1.4);\n  }\n  85% {\n    filter: brightness(0.92) hue-rotate(-10deg);\n  }\n}\n\n@keyframes ridge-shadow-shift {\n  0%, 100% {\n    transform: translate(0px, 0px);\n    opacity: 1.0;\n  }\n  50% {\n    transform: translate(2px, -1px);\n    opacity: 0.85;\n  }\n}\n\n#sun {\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: sun-dusk-transit 12.0s ease-in-out infinite;\n}\n\n#sky {\n  animation: sky-dusk-shift 12.0s ease-in-out infinite;\n}\n\n#lines_left_crag, #lines_left_saddle, #lines_center_sun, #lines_right_saddle, #lines_right_summit {\n  animation: ridge-shadow-shift 12.0s ease-in-out infinite;\n}", "Chromatic Flare & Shimmering Contours": "/* Chromatic Solar Flare: Vermilion-to-Gold Shift with Thermal Mirage Skew */\n@keyframes sun-chromatic-shift {\n  0% {\n    transform: scale(1.0);\n    fill: #f8bc04;\n    filter: drop-shadow(0 0 8px rgba(248, 188, 4, 0.6));\n  }\n  33% {\n    transform: scale(1.12);\n    fill: #ea580c;\n    filter: drop-shadow(0 0 20px rgba(234, 88, 12, 0.85));\n  }\n  66% {\n    transform: scale(1.06);\n    fill: #e11d48;\n    filter: drop-shadow(0 0 24px rgba(225, 29, 72, 0.8));\n  }\n  100% {\n    transform: scale(1.0);\n    fill: #f8bc04;\n    filter: drop-shadow(0 0 8px rgba(248, 188, 4, 0.6));\n  }\n}\n\n@keyframes mirage-thermal-sway-1 {\n  0%, 100% {\n    transform: skewX(0deg) translateY(0px);\n  }\n  25% {\n    transform: skewX(0.7deg) translateY(-2px);\n  }\n  75% {\n    transform: skewX(-0.7deg) translateY(1.5px);\n  }\n}\n\n@keyframes mirage-thermal-sway-2 {\n  0%, 100% {\n    transform: skewX(0deg) translateX(0px);\n  }\n  33% {\n    transform: skewX(-0.9deg) translateX(3px);\n  }\n  66% {\n    transform: skewX(0.8deg) translateX(-2.5px);\n  }\n}\n\n#sun {\n  transform-box: fill-box;\n  transform-origin: center;\n  animation: sun-chromatic-shift 8.0s ease-in-out infinite;\n}\n\n#lines_left_crag, #lines_center_sun, #lines_right_summit {\n  animation: mirage-thermal-sway-1 8.0s ease-in-out infinite;\n}\n\n#lines_left_saddle, #lines_right_saddle {\n  animation: mirage-thermal-sway-2 8.0s ease-in-out infinite;\n  animation-delay: -1.8s;\n}"};
+    let currentMotionStyleName = Object.keys(MOTION_STYLES)[0] || "";
+
+    function applyMotionStyle(styleName) {
+      const css = MOTION_STYLES[styleName];
+      if (!css) return;
+      currentMotionStyleName = styleName;
+      const tag = document.getElementById("motion-css-tag");
+      if (tag) {
+        tag.textContent = `\n${css}\n`;
+      }
+      // Force layout/style recalibration so Web Animations picks up newly initialized animations
+      void svgElem.offsetHeight;
+      applySpeed(currentSpeed);
+      baseLoopDuration = 0;
+      baseLoopDuration = detectBaseLoopDuration();
+    }
+
+    const motionSelect = document.getElementById("motion-select");
+    if (motionSelect) {
+      motionSelect.addEventListener("change", (e) => {
+        applyMotionStyle(e.target.value);
+      });
+    }
+
+    // Export Standalone Animated SVG
+    exportBtn.addEventListener("click", () => {
+      const svgClone = svgElem.cloneNode(true);
+
+      // Apply active theme to clone
+      if (currentThemeName && PALETTES[currentThemeName]) {
+        const activeTheme = PALETTES[currentThemeName];
+        for (const [id, color] of Object.entries(activeTheme)) {
+          const el = svgClone.querySelector("#" + CSS.escape(id));
+          if (el) {
+            if (el.getAttribute("stroke") && el.getAttribute("stroke") !== "none") {
+              el.setAttribute("stroke", color);
+              el.style.stroke = color;
+            } else {
+              el.setAttribute("fill", color);
+              el.style.fill = color;
+            }
+          }
+        }
+      }
+
+      // WYSIWYG Speed Scaling: scale all animation durations if speed != 1.0
+      let activeCss = (MOTION_STYLES && currentMotionStyleName && MOTION_STYLES[currentMotionStyleName]) 
+        ? MOTION_STYLES[currentMotionStyleName] 
+        : `/* Zen Sunrise: Solar Breathing & Subtle Atmospheric Mountain Parallax */
+@keyframes sun-zen-pulse {
+  0%, 100% {
+    transform: translateY(0px) scale(1.0);
+    filter: drop-shadow(0 0 6px rgba(248, 188, 4, 0.4));
+  }
+  50% {
+    transform: translateY(-6px) scale(1.04);
+    filter: drop-shadow(0 0 18px rgba(248, 188, 4, 0.75));
+  }
+}
+
+@keyframes left-crag-drift {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(-3px, -1.5px);
+  }
+}
+
+@keyframes left-saddle-breathe {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(3px, -2px);
+  }
+}
+
+@keyframes center-ridge-drift {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(0px, -2.5px);
+  }
+}
+
+@keyframes right-saddle-sway {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(-3.5px, -1.5px);
+  }
+}
+
+@keyframes right-summit-drift {
+  0%, 100% {
+    transform: translate(0px, 0px);
+  }
+  50% {
+    transform: translate(4px, -2px);
+  }
+}
+
+#sun {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sun-zen-pulse 10.0s ease-in-out infinite;
+}
+
+#lines_left_crag {
+  animation: left-crag-drift 10.0s ease-in-out infinite;
+}
+
+#lines_left_saddle {
+  animation: left-saddle-breathe 8.5s ease-in-out infinite;
+}
+
+#lines_center_sun {
+  animation: center-ridge-drift 7.5s ease-in-out infinite;
+}
+
+#lines_right_saddle {
+  animation: right-saddle-sway 9.0s ease-in-out infinite;
+}
+
+#lines_right_summit {
+  animation: right-summit-drift 10.0s ease-in-out infinite;
+}`;
+
+      if (currentSpeed && currentSpeed !== 1.0) {
+        activeCss = activeCss.replace(/(\b\d+(?:\.\d+)?)\s*s\b/g, (match, numStr) => {
+          const num = parseFloat(numStr);
+          if (num > 0) {
+            const scaled = num / currentSpeed;
+            return `${scaled.toFixed(2)}s`;
+          }
+          return match;
+        });
+      }
+
+      // WYSIWYG Framing & Pan: If 16:9 mode is active, crop the viewBox to the exact 16:9 framing and pan position
+      if (is169Mode) {
+        const vb = getSvgViewBoxDimensions();
+        const vbAspect = vb.width / vb.height;
+        const targetAspect = 16 / 9;
+
+        let origX = 0, origY = 0;
+        const vbAttr = svgElem.getAttribute("viewBox");
+        if (vbAttr) {
+          const parts = vbAttr.trim().split(/[\s,]+/).map(Number);
+          if (parts.length === 4) {
+            origX = parts[0] || 0;
+            origY = parts[1] || 0;
+          }
+        }
+
+        let cropW = vb.width, cropH = vb.height, cropX = origX, cropY = origY;
+        if (vbAspect >= targetAspect) {
+          cropH = vb.height;
+          cropW = vb.height * targetAspect;
+          const overflow = vb.width - cropW;
+          cropX = origX + (panProgress * overflow);
+        } else {
+          cropW = vb.width;
+          cropH = vb.width / targetAspect;
+          const overflow = vb.height - cropH;
+          cropY = origY + (panProgress * overflow);
+        }
+        svgClone.setAttribute("viewBox", `${cropX.toFixed(2)} ${cropY.toFixed(2)} ${cropW.toFixed(2)} ${cropH.toFixed(2)}`);
+        svgClone.setAttribute("width", "1920");
+        svgClone.setAttribute("height", "1080");
+        svgClone.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      } else {
+        const vb = getSvgViewBoxDimensions();
+        svgClone.setAttribute("width", String(vb.width));
+        svgClone.setAttribute("height", String(vb.height));
+        svgClone.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      }
+
+      const styleEl = document.createElement("style");
+      styleEl.textContent = `\n${activeCss}\n`;
+      svgClone.insertBefore(styleEl, svgClone.firstChild);
+
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(svgClone);
+      const blob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const safeMotion = currentMotionStyleName ? `_${currentMotionStyleName.toLowerCase().replace(/[^a-z0-9]+/g, "_")}` : "";
+      const safeTheme = currentThemeName ? `_${currentThemeName.toLowerCase().replace(/[^a-z0-9]+/g, "_")}` : "";
+      const frameTag = is169Mode ? "_16x9" : "";
+      const speedTag = (currentSpeed !== 1.0) ? `_${currentSpeed.toFixed(1)}x` : "";
+      a.download = `Mountain Sunrise${safeMotion}${safeTheme}${frameTag}${speedTag}_motion.svg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // Export MP4 Video Modal & Frame-Stepping Recorder (Adobe Stock Ready)
+    const exportMp4Btn = document.getElementById("export-mp4-btn");
+    const modalBackdrop = document.getElementById("export-modal-backdrop");
+    const modalCloseBtn = document.getElementById("modal-close-btn");
+    const modalCancelBtn = document.getElementById("modal-cancel-btn");
+    const modalStartBtn = document.getElementById("modal-start-btn");
+    const modalResSelect = document.getElementById("modal-res-select");
+    const modalLoopsSelect = document.getElementById("modal-loops-select");
+    const modalPanSelect = document.getElementById("modal-pan-select");
+    const modalPanVal = document.getElementById("modal-pan-val");
+    const modalSpeedDisplay = document.getElementById("modal-speed-mode-display");
+    const modalDurationDisplay = document.getElementById("modal-duration-display");
+    const modalFramesDisplay = document.getElementById("modal-frames-display");
+    const modalProgressWrap = document.getElementById("modal-progress-wrap");
+    const modalProgressBar = document.getElementById("modal-progress-bar");
+    const modalProgressStatus = document.getElementById("modal-progress-status");
+    const modalProgressPct = document.getElementById("modal-progress-pct");
+
+    function updateModalCalculations() {
+      const speedMode = document.querySelector('input[name="modal-speed-mode"]:checked')?.value || "current";
+      const activeSpd = speedMode === "current" ? currentSpeed : 1.0;
+      if (modalSpeedDisplay) modalSpeedDisplay.textContent = `${activeSpd.toFixed(1)}x`;
+      const panOpt = document.getElementById("modal-pan-opt-current");
+      if (panOpt) panOpt.textContent = `WYSIWYG: Ikuti Pan Layar (${Math.round(panProgress * 100)}%)`;
+
+      if (!baseLoopDuration || baseLoopDuration <= 0) {
+        baseLoopDuration = detectBaseLoopDuration();
+      }
+
+      const loops = parseInt(modalLoopsSelect.value, 10) || 1;
+      const loopSec = (baseLoopDuration / 1000) / activeSpd;
+      const totalSec = loopSec * loops;
+      const totalFrames = Math.round(totalSec * 60);
+
+      if (modalDurationDisplay) modalDurationDisplay.textContent = `${totalSec.toFixed(1)}s (${loops}x loop @ ${loopSec.toFixed(1)}s)`;
+      if (modalFramesDisplay) modalFramesDisplay.textContent = `${totalFrames} frames @ 60 FPS (Constant Frame Rate CFR)`;
+    }
+
+    if (exportMp4Btn && modalBackdrop) {
+      exportMp4Btn.addEventListener("click", () => {
+        modalBackdrop.style.display = "flex";
+        updateModalCalculations();
+      });
+
+      modalCloseBtn.addEventListener("click", () => {
+        modalBackdrop.style.display = "none";
+      });
+
+      modalCancelBtn.addEventListener("click", () => {
+        modalBackdrop.style.display = "none";
+      });
+
+      modalLoopsSelect.addEventListener("change", updateModalCalculations);
+      modalResSelect.addEventListener("change", updateModalCalculations);
+      document.querySelectorAll('input[name="modal-speed-mode"]').forEach(r => {
+        r.addEventListener("change", updateModalCalculations);
+      });
+
+      modalStartBtn.addEventListener("click", async () => {
+        const speedMode = document.querySelector('input[name="modal-speed-mode"]:checked')?.value || "current";
+        const activeSpd = speedMode === "current" ? currentSpeed : 1.0;
+        const loops = parseInt(modalLoopsSelect.value, 10) || 1;
+        const [targetW, targetH] = modalResSelect.value.split("x").map(Number);
+        const panMode = modalPanSelect.value;
+
+        if (!baseLoopDuration || baseLoopDuration <= 0) {
+          baseLoopDuration = detectBaseLoopDuration();
+        }
+
+        const loopSec = (baseLoopDuration / 1000) / activeSpd;
+        const totalSec = loopSec * loops;
+        const fps = 60;
+        const totalFrames = Math.round(totalSec * fps);
+
+        // Lock UI
+        modalStartBtn.disabled = true;
+        modalCancelBtn.disabled = true;
+        modalCloseBtn.disabled = true;
+        modalProgressWrap.style.display = "block";
+        modalProgressBar.style.width = "0%";
+        modalProgressPct.textContent = "0%";
+        modalProgressStatus.textContent = "Menginisialisasi encoder video MP4...";
+
+        // Offscreen Canvas setup
+        const offCanvas = document.createElement("canvas");
+        offCanvas.width = targetW;
+        offCanvas.height = targetH;
+        const ctx = offCanvas.getContext("2d");
+
+        // MediaRecorder setup with H.264 MP4 (or VP9 WebM fallback)
+        const stream = offCanvas.captureStream(fps);
+        let mime = "video/mp4; codecs=avc1";
+        if (!MediaRecorder.isTypeSupported(mime)) mime = "video/mp4";
+        if (!MediaRecorder.isTypeSupported(mime)) mime = "video/webm; codecs=vp9";
+        if (!MediaRecorder.isTypeSupported(mime)) mime = "video/webm";
+
+        const bitrate = targetW >= 3840 ? 45000000 : 25000000;
+        const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: bitrate });
+        const recordedChunks = [];
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        // Framing & Pan calculations for target 16:9 canvas
+        const vb = getSvgViewBoxDimensions();
+        const vbAspect = vb.width / vb.height;
+        const targetAspect = targetW / targetH;
+        let drawW, drawH, drawOffsetX = 0, drawOffsetY = 0;
+
+        if (vbAspect >= targetAspect) {
+          drawH = targetH;
+          drawW = targetH * vbAspect;
+          const maxOverflow = drawW - targetW;
+          const p = (panMode === "center") ? 0.5 : panProgress;
+          drawOffsetX = -(p * maxOverflow);
+          drawOffsetY = 0;
+        } else {
+          drawW = targetW;
+          drawH = targetW / vbAspect;
+          const maxOverflow = drawH - targetH;
+          const p = (panMode === "center") ? 0.5 : panProgress;
+          drawOffsetX = 0;
+          drawOffsetY = -(p * maxOverflow);
+        }
+
+        // Pause live animations and reset deterministically to frame 0 (t = 0.0s)
+        const anims = svgElem.getAnimations({ subtree: true });
+        const wasPlaying = isPlaying;
+        anims.forEach(a => {
+          a.pause();
+          a.currentTime = 0;
+        });
+
+        recorder.start(100);
+
+        // Detect background color from SVG
+        const skyEl = svgElem.querySelector("#sky") || svgElem.querySelector("rect");
+        const bgColor = (skyEl && skyEl.getAttribute("fill")) ? skyEl.getAttribute("fill") : "#0a0c10";
+
+        const frameDelay = 1000 / fps;
+
+        for (let i = 0; i < totalFrames; i++) {
+          const tElapsedMs = (i / fps) * 1000 * activeSpd;
+          anims.forEach(a => {
+            const d = a.effect ? a.effect.getTiming().duration : baseLoopDuration;
+            const dur = (typeof d === "number" && d > 0) ? d : baseLoopDuration;
+            a.currentTime = tElapsedMs % dur;
+          });
+
+          // Clone SVG and copy computed styles for clean deterministic snapshot
+          const clone = svgElem.cloneNode(true);
+          const origEls = svgElem.querySelectorAll("*");
+          const cloneEls = clone.querySelectorAll("*");
+          for (let j = 0; j < origEls.length; j++) {
+            const cs = window.getComputedStyle(origEls[j]);
+            if (cs.transform && cs.transform !== "none") {
+              cloneEls[j].style.transform = cs.transform;
+              if (cs.transformOrigin) cloneEls[j].style.transformOrigin = cs.transformOrigin;
+              if (cs.transformBox) cloneEls[j].style.transformBox = cs.transformBox;
+            }
+            if (cs.opacity && cs.opacity !== "1") cloneEls[j].style.opacity = cs.opacity;
+            if (cs.filter && cs.filter !== "none") cloneEls[j].style.filter = cs.filter;
+          }
+
+          const svgStr = new XMLSerializer().serializeToString(clone);
+          const img = new Image();
+          await new Promise((res) => {
+            img.onload = res;
+            img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
+          });
+
+          // Draw clean frame to video canvas
+          ctx.fillStyle = bgColor;
+          ctx.fillRect(0, 0, targetW, targetH);
+          ctx.drawImage(img, drawOffsetX, drawOffsetY, drawW, drawH);
+
+          const pct = Math.round(((i + 1) / totalFrames) * 100);
+          modalProgressBar.style.width = `${pct}%`;
+          modalProgressPct.textContent = `${pct}%`;
+          modalProgressStatus.textContent = `Rendering frame ${i + 1} / ${totalFrames}...`;
+
+          await new Promise(r => setTimeout(r, Math.min(16, frameDelay)));
+        }
+
+        modalProgressStatus.textContent = "Finalisasi file MP4...";
+        recorder.stop();
+        await new Promise(r => recorder.onstop = r);
+
+        const blob = new Blob(recordedChunks, { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const ext = mime.includes("mp4") ? "mp4" : "webm";
+        const safeMotion = currentMotionStyleName ? `_${currentMotionStyleName.toLowerCase().replace(/[^a-z0-9]+/g, "_")}` : "";
+        const safeTheme = currentThemeName ? `_${currentThemeName.toLowerCase().replace(/[^a-z0-9]+/g, "_")}` : "";
+        const resLabel = targetH === 2160 ? "4k" : (targetH === 1080 ? "1080p" : "720p");
+        a.download = `Mountain Sunrise${safeMotion}${safeTheme}_${loops}x_${resLabel}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // Restore live playback
+        if (wasPlaying) {
+          anims.forEach(a => a.play());
+        }
+
+        modalStartBtn.disabled = false;
+        modalCancelBtn.disabled = false;
+        modalCloseBtn.disabled = false;
+        modalProgressWrap.style.display = "none";
+        modalBackdrop.style.display = "none";
+      });
+    }
+
+    // 1x Loop Timer Telemetry (Scales Dynamically with Playback Rate)
+    const loopTimeCur = document.getElementById("loop-time-cur");
+    const loopTimeTotal = document.getElementById("loop-time-total");
+
+    let baseLoopDuration = 0;
+
+    function detectBaseLoopDuration() {
+      const anims = svgElem.getAnimations({ subtree: true });
+      let maxMs = 0;
+      anims.forEach(anim => {
+        const d = anim.effect ? anim.effect.getTiming().duration : null;
+        if (typeof d === "number" && d > maxMs && d < 100000) {
+          maxMs = d;
+        }
+      });
+      if (maxMs <= 0) {
+        svgElem.querySelectorAll("*").forEach(el => {
+          const comp = window.getComputedStyle(el);
+          const dur = parseFloat(comp.animationDuration);
+          if (dur > 0 && dur * 1000 > maxMs) {
+            maxMs = dur * 1000;
+          }
+        });
+      }
+      return maxMs > 0 ? maxMs : 10000;
+    }
+
+    function updateLoopTimer(now) {
+      if (!baseLoopDuration || baseLoopDuration <= 0) {
+        baseLoopDuration = detectBaseLoopDuration();
+      }
+
+      const totalSec = (baseLoopDuration / 1000) / currentSpeed;
+      if (loopTimeTotal) {
+        loopTimeTotal.textContent = `${totalSec.toFixed(1)}s`;
+      }
+
+      if (isPlaying && loopTimeCur) {
+        const anims = svgElem.getAnimations({ subtree: true });
+        const primaryAnim = anims.find(a => a.effect && a.effect.getTiming().duration === baseLoopDuration) || anims[0];
+
+        let curSec = 0;
+        if (primaryAnim && typeof primaryAnim.currentTime === "number") {
+          const timelineElapsedMs = (primaryAnim.currentTime) % baseLoopDuration;
+          curSec = (timelineElapsedMs / 1000) / currentSpeed;
+        } else {
+          const cycleMs = (now * currentSpeed) % baseLoopDuration;
+          curSec = (cycleMs / 1000) / currentSpeed;
+        }
+
+        loopTimeCur.textContent = `${Math.max(0, curSec).toFixed(1)}s`;
+      }
+      requestAnimationFrame(updateLoopTimer);
+    }
+    requestAnimationFrame(updateLoopTimer);
+
+    // Initial framing and speed setup
+    updateFramingAndPan();
+    applySpeed(1.0);
+  </script>
+</body>
+</html>
